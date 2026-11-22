@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon frigo">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#02090d">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Mon frigo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+:root{--bg:#eaf3f2;--surface:#fff;--ink:#12302f;--muted:#587170;--accent:#0f766e;--on-accent:#fff;--line:#cadcda;--ok:#2b8a54;--warn:#c27a00;--bad:#c4352b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d1a1a;--surface:#152524;--ink:#e2f0ee;--muted:#8ea8a6;--accent:#4fd1c0;--on-accent:#06201d;--line:#264340;--ok:#5fcf8f;--warn:#f0b13a;--bad:#ff7d70}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d1a1a;--surface:#152524;--ink:#e2f0ee;--muted:#8ea8a6;--accent:#4fd1c0;--on-accent:#06201d;--line:#264340;--ok:#5fcf8f;--warn:#f0b13a;--bad:#ff7d70}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);margin:2px 0 18px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:22px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px}.row>*{flex:1}#dateScanControls[hidden]{display:none}
+button{font:600 .95rem inherit;font-family:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:10px 12px;cursor:pointer}
+button.main{background:var(--accent);color:var(--on-accent);border-color:var(--accent);width:100%;margin-top:14px;padding:12px}
+#scanGrocery{margin-bottom:8px}
+.chips{display:flex;gap:6px;margin-top:8px}.chips button{flex:1;padding:7px 4px;font-size:.85rem}
+video{width:100%;border-radius:10px;margin-top:10px;background:#000;max-height:320px;object-fit:cover}
+#msg{min-height:1.3em;font-size:.88rem;color:var(--muted);margin:8px 0 0}
+.shelf{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px}
+.shelf h2{font-size:1.15rem;margin:0}.shelf span{color:var(--muted);font-size:.88rem}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+li{display:grid;grid-template-columns:64px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;padding:12px;--c:var(--ok)}
+li.warn{--c:var(--warn)}li.bad{--c:var(--bad)}
+.d{text-align:center;color:var(--c);line-height:1}
+.d b{display:block;font-size:2.1rem;font-weight:800;letter-spacing:-.03em}.d small{font-size:.75rem}
+.n{font-weight:600;overflow-wrap:anywhere}.dt{color:var(--muted);font-size:.85rem}
+.act{display:flex;gap:6px;margin-top:8px}.act button{padding:6px 10px;font-size:.85rem}
+.empty{color:var(--muted);text-align:center;padding:22px 8px;border:1px dashed var(--line);border-radius:12px}
+.stats{margin-top:20px;color:var(--muted);font-size:.9rem;text-align:center}
+.suggestions{margin-top:18px;padding-top:6px}
+.suggestions h3{margin:0 0 10px;font-size:1.05rem}
+.suggestion-list{display:grid;gap:10px}
+.suggestion-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.suggestion-card h4{margin:0 0 6px;font-size:1rem}
+.suggestion-card p{margin:0;color:var(--muted);font-size:.9rem}
+.suggestion-card .match{display:inline-block;margin-top:8px;padding:6px 8px;border-radius:999px;background:rgba(15,118,110,.12);color:var(--accent);font-size:.8rem;font-weight:700}
+.suggestion-meta{margin-top:6px!important;color:var(--ink)!important;font-size:.85rem!important;font-weight:700}
+.recipe-criteria{margin:0 0 14px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.criteria-grid label{margin:0}
+.criteria-grid select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.criteria-grid select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.criteria-status{margin:10px 0 0;color:var(--muted);font-size:.88rem}
+.suggestions .main:disabled{opacity:.55;cursor:not-allowed}
+.suggestion-list[hidden]{display:none}
+.suggestion-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.suggestion-actions button{margin:0;padding:7px 10px;font-weight:700}
+.suggestion-actions button:first-child{color:var(--accent)}
+.suggestion-actions .meal-done{color:var(--ok)}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:16px 0}
+.tabs button{padding:10px;border-radius:8px;color:var(--muted);font-weight:700}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tabs .tab-count{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:4px;padding:0 5px;border-radius:999px;background:rgba(15,118,110,.12);font-size:.76rem}
+.tabs button[aria-selected="true"] .tab-count{background:rgba(255,255,255,.2)}
+.profile-title{margin:0 0 4px;font-size:1.2rem}.profile-copy{margin:0 0 14px;color:var(--muted);font-size:.92rem}
+.appliance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.appliance-card{position:relative;display:grid;grid-template-columns:36px 1fr;grid-template-rows:auto auto;gap:2px 10px;align-items:center;margin:0;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--ink);cursor:pointer}
+.appliance-card:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.appliance-card input{grid-row:1/3;grid-column:1;width:20px;height:20px;margin:0;accent-color:var(--accent)}
+.appliance-picture{grid-column:2;grid-row:1;font-size:1.65rem;line-height:1.2}
+.appliance-card strong{grid-column:2;grid-row:2;font-size:.92rem}
+.appliance-card small{grid-column:1/3;color:var(--muted);font-size:.78rem}
+.other-appliance-wrap{margin:14px 0 0}.other-appliance-wrap[hidden]{display:none}
+.profile-status{margin:14px 0 0;color:var(--muted);font-size:.88rem}
+dialog.recipe-dialog{width:min(540px,calc(100% - 24px));max-height:85vh;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink)}
+dialog.recipe-dialog::backdrop{background:rgba(5,20,19,.58)}
+.recipe-content{padding:18px;overflow:auto;max-height:85vh}
+.recipe-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.recipe-head h2{margin:0;font-size:1.35rem}.recipe-head button{flex:0 0 auto;padding:7px 10px}
+.recipe-dialog label{margin:16px 0 6px}.recipe-dialog input{width:96px}
+.recipe-dialog h3{margin:18px 0 8px;font-size:1.05rem}
+.recipe-ingredients,.recipe-steps{margin:0;padding-left:22px;display:grid;gap:8px}
+.recipe-ingredients li,.recipe-steps li{padding-left:2px}
+.recipe-ingredients .missing{color:var(--muted)}
+.recipe-availability{margin:8px 0 0;color:var(--muted);font-size:.86rem}
+.grocery-intro{margin:8px 0 12px;color:var(--muted);font-size:.9rem}
+.grocery-list{display:grid;gap:8px;max-height:48vh;overflow:auto}
+.grocery-row{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(118px,145px);gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.grocery-row input[type="checkbox"]{width:20px;height:20px;margin:0;accent-color:var(--accent)}
+.grocery-row input[type="text"],.grocery-row input[type="date"]{min-width:0;padding:8px;font-size:.86rem}
+.grocery-actions{display:flex;gap:8px;margin-top:12px}.grocery-actions button{flex:1}
+.shopping-panel{padding:0;overflow:hidden}
+.shopping-header{padding:18px 16px 12px;border-bottom:1px solid var(--line);background:linear-gradient(120deg,rgba(15,118,110,.12),transparent 65%)}
+.shopping-header h2{margin:0;font-size:1.3rem}.shopping-header p{margin:5px 0 0;color:var(--muted);font-size:.9rem}
+.shopping-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.shopping-add input{min-width:0}.shopping-add button{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.shopping-items{display:grid;gap:0;max-height:52vh;overflow:auto}
+.shopping-entry{display:grid;grid-template-columns:26px minmax(0,1fr) minmax(96px,120px) auto;gap:9px;align-items:center;padding:12px 16px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;--c:transparent}
+.shopping-entry input[type="checkbox"]{width:20px;height:20px;margin:0;accent-color:var(--accent)}
+.shopping-entry-name{min-width:0;overflow-wrap:anywhere;font-weight:600}
+.shopping-price{position:relative;display:flex;align-items:center;margin:0}
+.shopping-price input{min-width:0;padding:8px 26px 8px 8px;text-align:right;font-size:.9rem}
+.shopping-price span{position:absolute;right:9px;color:var(--muted);pointer-events:none}
+.shopping-entry button{padding:7px 8px;color:var(--muted);font-size:.82rem}
+.shopping-entry button:hover{color:var(--bad);border-color:var(--bad)}
+.shopping-empty{margin:16px;border:1px dashed var(--line)}
+.shopping-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-top:2px solid var(--accent);background:rgba(15,118,110,.07)}
+.shopping-summary strong{display:block;font-size:1.05rem}.shopping-summary p{margin:3px 0 0;color:var(--muted);font-size:.82rem}
+.shopping-total{flex:0 0 auto;color:var(--accent);font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums}
+@media(max-width:380px){.shopping-entry{grid-template-columns:24px minmax(0,1fr) 88px auto;gap:6px;padding:10px 12px}.shopping-entry button{font-size:.75rem;padding:6px}.shopping-price input{font-size:.84rem}}
+.fam-row{display:flex;gap:10px;align-items:center;justify-content:space-between}.code{font-size:1.8rem;font-weight:800;letter-spacing:.12em;line-height:1.1}.fam-row .act{margin:0}#camwrap{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;background:#000}#camwrap video{display:block;width:100%;height:300px;max-height:none;margin:0;border-radius:0;object-fit:cover}#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.chain{display:flex;gap:8px;align-items:center;margin:10px 0 0;color:var(--ink);font-size:.9rem}#chain{width:auto;flex:0 0 auto}.chips{flex-wrap:wrap}.chips button{min-width:56px;padding:12px 4px;font-size:1rem}</style>
+
+<style id="homeStyle">
+/* ===== Barre d'onglets façon appli mobile (en bas) ===== */
+:root{--nav-bg:rgba(255,255,255,.88)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--nav-bg:rgba(21,37,36,.88)}}
+:root[data-theme="dark"]{--nav-bg:rgba(21,37,36,.88)}
+main{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));width:min(520px,calc(100% - 20px));margin:0;z-index:60;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:6px;border-radius:26px;background:var(--nav-bg);border:1px solid var(--line);box-shadow:0 10px 32px rgba(0,0,0,.2);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);transition:background .4s,border-color .4s,box-shadow .4s}
+.tabs button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 2px 8px;border:0;background:transparent;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.01em;color:var(--muted);transition:transform .15s,background .25s,color .25s,box-shadow .25s;-webkit-tap-highlight-color:transparent}
+.tabs button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.tabs button:active{transform:scale(.92)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent);box-shadow:0 4px 16px rgba(15,118,110,.45)}
+.tabs button[aria-selected="true"] svg{transform:translateY(-2px) scale(1.12)}
+.tabs .tab-count{position:absolute;top:3px;left:calc(50% + 6px);margin:0;min-width:17px;height:17px;padding:0 4px;background:var(--bad);color:#fff;font-size:.66rem}
+.tabs button[aria-selected="true"] .tab-count{background:var(--bad)}
+.tabs .tab-count[hidden]{display:none}
+body.on-home .tabs{background:rgba(5,18,24,.55);border-color:rgba(90,255,235,.28);box-shadow:0 0 34px rgba(40,255,220,.18),inset 0 0 18px rgba(40,255,220,.06)}
+body.on-home .tabs button{color:#8fb9b8}
+body.on-home .tabs button[aria-selected="true"]{background:linear-gradient(135deg,#35f2dc,#4aa8ff);color:#02161a;box-shadow:0 0 20px rgba(53,242,220,.65)}
+body.on-home main>h1,body.on-home main>.sub,body.on-home #fridgeTab{display:none}
+
+/* ===== Page d'accueil futuriste ===== */
+#homeTab{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.4vh,22px);padding:env(safe-area-inset-top,0px) 16px calc(96px + env(safe-area-inset-bottom,0px));overflow:hidden;color:#dffcf8;background:radial-gradient(120% 80% at 50% 30%,#0b2a33 0%,#04141b 55%,#010609 100%);--s:min(50vw,27vh);touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:opacity .45s,transform .45s,filter .45s}
+#homeTab[hidden]{display:none}
+#homeTab.leave{opacity:0;transform:scale(1.12);filter:blur(10px)}
+#homeFx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hm-aurora{position:absolute;width:140%;height:60%;left:-20%;top:-15%;background:conic-gradient(from 180deg at 50% 50%,rgba(53,242,220,.0),rgba(53,242,220,.22),rgba(123,92,255,.2),rgba(74,168,255,.0));filter:blur(60px);animation:hmAur 14s linear infinite;pointer-events:none}
+@keyframes hmAur{to{transform:rotate(360deg)}}
+.hm-grid{position:absolute;left:-50%;right:-50%;bottom:-8%;height:46%;background-image:linear-gradient(rgba(53,242,220,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(53,242,220,.55) 1px,transparent 1px);background-size:44px 44px;transform:perspective(380px) rotateX(64deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(to top,#000 5%,transparent 85%);mask-image:linear-gradient(to top,#000 5%,transparent 85%);opacity:.5;animation:hmGrid 2.2s linear infinite;pointer-events:none}
+@keyframes hmGrid{to{background-position:0 44px,0 0}}
+.hm-scan{position:absolute;left:0;right:0;height:120px;top:-120px;background:linear-gradient(to bottom,transparent,rgba(53,242,220,.1),transparent);animation:hmScan 6s linear infinite;pointer-events:none}
+@keyframes hmScan{to{transform:translateY(calc(100vh + 120px))}}
+
+.hm-stage{position:relative;width:calc(var(--s)*1.1);height:calc(var(--s)*1.5);flex:none;display:grid;place-items:center;perspective:700px;--rx:0deg;--ry:0deg}
+.hm-tilt{position:relative;width:100%;height:100%;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateY(var(--rx)) rotateX(var(--ry));transition:transform .25s ease-out}
+.hm-float{animation:hmFloat 5s ease-in-out infinite;display:grid;place-items:center}
+@keyframes hmFloat{50%{transform:translateY(-10px)}}
+.hm-glow{position:absolute;width:calc(var(--s)*1.5);height:calc(var(--s)*1.5);border-radius:50%;background:radial-gradient(circle,rgba(53,242,220,.5),rgba(74,168,255,.18) 45%,transparent 70%);filter:blur(14px);animation:hmPulse 3.2s ease-in-out infinite}
+@keyframes hmPulse{50%{transform:scale(1.18);opacity:.65}}
+.hm-ring{position:absolute;left:50%;top:50%;border-radius:50%;border:1.5px solid rgba(53,242,220,.5);transform:translate(-50%,-50%) rotateX(72deg);box-shadow:0 0 18px rgba(53,242,220,.35),inset 0 0 18px rgba(53,242,220,.2);animation:hmRing 7s linear infinite}
+.hm-ring.r1{width:calc(var(--s)*1.7);height:calc(var(--s)*1.7)}
+.hm-ring.r2{width:calc(var(--s)*2.1);height:calc(var(--s)*2.1);border-color:rgba(123,92,255,.55);box-shadow:0 0 18px rgba(123,92,255,.4);animation-duration:11s;animation-direction:reverse;border-style:dashed}
+@keyframes hmRing{from{transform:translate(-50%,-50%) rotateX(72deg) rotateZ(0)}to{transform:translate(-50%,-50%) rotateX(72deg) rotateZ(360deg)}}
+.hm-fridge{position:relative;width:var(--s);height:calc(var(--s)*1.4);overflow:visible;filter:drop-shadow(0 0 14px rgba(53,242,220,.55))}
+.hm-body{stroke-dasharray:1000;stroke-dashoffset:1000;animation:hmDraw 1.6s .2s cubic-bezier(.6,0,.2,1) forwards}
+@keyframes hmDraw{to{stroke-dashoffset:0}}
+.hm-fade{opacity:0;animation:hmIn .8s 1.1s forwards}
+@keyframes hmIn{to{opacity:1}}
+.hm-beam{animation:hmBeam 3.4s linear infinite}
+@keyframes hmBeam{from{transform:translateY(0)}to{transform:translateY(310px)}}
+.hm-door{transform-box:fill-box;transform-origin:left center;animation:hmDoor 9s ease-in-out 1.6s infinite}
+.hm-door.d2{animation-delay:1.85s}
+@keyframes hmDoor{0%,10%{transform:scaleX(1) skewY(0)}28%,66%{transform:scaleX(.14) skewY(-6deg)}84%,100%{transform:scaleX(1) skewY(0)}}
+.hm-item{animation:hmTw 2.6s ease-in-out infinite}
+.hm-item:nth-child(2n){animation-delay:.6s}.hm-item:nth-child(3n){animation-delay:1.2s}
+@keyframes hmTw{50%{opacity:.45}}
+.hm-orbit{position:absolute;left:50%;top:50%;width:0;height:0;animation:hmSpin 26s linear infinite}
+@keyframes hmSpin{to{transform:rotate(360deg)}}
+.hm-o{position:absolute;left:0;top:0;transform:rotate(var(--a)) translateX(calc(var(--s)*.86))}
+.hm-o span{display:grid;place-items:center;width:44px;height:44px;margin:-22px 0 0 -22px;font-size:1.35rem;border-radius:14px;background:rgba(8,30,38,.7);border:1px solid rgba(53,242,220,.45);box-shadow:0 0 16px rgba(53,242,220,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:hmUp 26s linear infinite;opacity:0;animation-name:hmUp,hmPop;animation-duration:26s,.6s;animation-timing-function:linear,ease-out;animation-iteration-count:infinite,1;animation-fill-mode:none,forwards;animation-delay:0s,var(--d)}
+@keyframes hmUp{from{transform:rotate(calc(var(--a)*-1))}to{transform:rotate(calc(var(--a)*-1 - 360deg))}}
+@keyframes hmPop{from{opacity:0;scale:.2}to{opacity:1;scale:1}}
+
+.hm-title{position:relative;margin:0;font-weight:800;font-size:clamp(2rem,10vw,3rem);letter-spacing:.22em;padding-left:.22em;line-height:1;background:linear-gradient(100deg,#35f2dc 0%,#fff 25%,#4aa8ff 50%,#a78bfa 75%,#35f2dc 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:hmShine 5s linear infinite,hmTitle 1s .5s both;filter:drop-shadow(0 0 14px rgba(53,242,220,.5))}
+@keyframes hmShine{to{background-position:-250% 0}}
+@keyframes hmTitle{from{opacity:0;letter-spacing:.7em;filter:blur(10px)}}
+.hm-load{position:relative;width:min(220px,56vw);height:4px;border-radius:4px;background:rgba(53,242,220,.15);overflow:hidden}
+.hm-load i{position:absolute;inset:0;width:100%;border-radius:4px;background:linear-gradient(90deg,#35f2dc,#4aa8ff,#a78bfa);box-shadow:0 0 12px #35f2dc;transform-origin:left;animation:hmLoad 2s .6s cubic-bezier(.5,0,.2,1) both}
+@keyframes hmLoad{from{transform:scaleX(0)}}
+.hm-enter{position:relative;display:inline-flex;align-items:center;gap:10px;padding:15px 34px;border-radius:999px;border:1px solid rgba(53,242,220,.7);background:rgba(53,242,220,.08);color:#eafffb;font:800 1rem/1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;opacity:0;animation:hmBtn .7s 2.4s forwards,hmBtnGlow 2.4s 3.1s ease-in-out infinite;-webkit-tap-highlight-color:transparent;overflow:hidden}
+.hm-enter::before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:hmSweep 3s 3s infinite}
+.hm-enter svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:hmArrow 1.2s ease-in-out infinite}
+.hm-enter:active{transform:scale(.94)}
+@keyframes hmBtn{from{opacity:0;transform:translateY(14px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes hmBtnGlow{50%{box-shadow:0 0 30px rgba(53,242,220,.65),inset 0 0 16px rgba(53,242,220,.25)}}
+@keyframes hmSweep{to{left:130%}}
+@keyframes hmArrow{50%{transform:translateX(5px)}}
+.hm-rip{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #35f2dc;pointer-events:none;animation:hmRip .8s ease-out forwards}
+@keyframes hmRip{to{transform:scale(14);opacity:0}}
+.hm-corner{position:absolute;width:26px;height:26px;border:2px solid rgba(53,242,220,.5);pointer-events:none}
+.hm-corner.tl{top:calc(14px + env(safe-area-inset-top,0px));left:14px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.hm-corner.tr{top:calc(14px + env(safe-area-inset-top,0px));right:14px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+@media (prefers-reduced-motion:reduce){#homeTab *,#homeTab *::before{animation-duration:.01s!important;animation-iteration-count:1!important;animation-delay:0s!important}}
+</style>
+
+<style id="neonStyle">
+/* ===== Thème néon unifié : toute l'appli dans la même DA que l'accueil ===== */
+:root:root:root{color-scheme:dark;--bg:#030d12;--surface:rgba(9,33,41,.62);--ink:#e3fffb;--muted:#80b3b0;--accent:#35f2dc;--on-accent:#02161a;--line:rgba(53,242,220,.22);--ok:#4dffa6;--warn:#ffc857;--bad:#ff6b7a;--violet:#7b5cff;--blue:#4aa8ff;--nav-bg:rgba(5,18,24,.72)}
+html{background:#02090d}
+body{background:transparent;color:var(--ink);-webkit-tap-highlight-color:transparent}
+::selection{background:rgba(53,242,220,.35);color:#fff}
+body::before{content:"";position:fixed;inset:-20%;z-index:-2;pointer-events:none;background:radial-gradient(40% 34% at 18% 14%,rgba(53,242,220,.2),transparent 70%),radial-gradient(34% 30% at 86% 28%,rgba(123,92,255,.18),transparent 70%),radial-gradient(42% 34% at 50% 100%,rgba(74,168,255,.16),transparent 70%),linear-gradient(180deg,#04141b,#02090d);animation:nzDrift 24s ease-in-out infinite alternate}
+@keyframes nzDrift{from{transform:translate3d(-3%,-2%,0) scale(1)}to{transform:translate3d(3%,3%,0) scale(1.12)}}
+body::after{content:"";position:fixed;left:-50%;right:-50%;bottom:-6%;height:38%;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(53,242,220,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(53,242,220,.5) 1px,transparent 1px);background-size:44px 44px;transform:perspective(380px) rotateX(64deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(to top,#000 5%,transparent 85%);mask-image:linear-gradient(to top,#000 5%,transparent 85%);opacity:.22;animation:hmGrid 3s linear infinite}
+
+/* En-tête */
+main>h1{font-size:2rem;letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(100deg,#35f2dc 0%,#fff 28%,#4aa8ff 52%,#a78bfa 76%,#35f2dc 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:hmShine 6s linear infinite;filter:drop-shadow(0 0 12px rgba(53,242,220,.45))}
+.sub{color:var(--muted);margin-bottom:20px}
+.sub::before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:nzBlink 2s ease-in-out infinite;vertical-align:middle}
+@keyframes nzBlink{50%{opacity:.25}}
+
+/* Apparition des onglets */
+#fridgeTab,#profileTab,#shoppingTab{animation:nzIn .5s cubic-bezier(.2,.8,.3,1) both}
+#fridgeTab>.panel:nth-child(2){animation:nzIn .5s .08s cubic-bezier(.2,.8,.3,1) both}
+@keyframes nzIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Panneaux en verre */
+.panel{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:0 0 26px rgba(53,242,220,.07),inset 0 1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.panel::before{content:"";position:absolute;left:18px;right:18px;top:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.7;pointer-events:none}
+label{color:var(--muted);letter-spacing:.03em}
+input,select,.criteria-grid select{background:rgba(2,15,20,.75);border:1px solid var(--line);border-radius:12px;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+input::placeholder{color:rgba(128,179,176,.55)}
+input:focus,input:focus-visible,select:focus,select:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(53,242,220,.18),0 0 18px rgba(53,242,220,.2)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Boutons */
+button{background:rgba(53,242,220,.06);border:1px solid var(--line);color:var(--ink);border-radius:12px;transition:transform .15s,background .2s,box-shadow .2s,border-color .2s;-webkit-tap-highlight-color:transparent}
+button:active:not(:disabled){transform:scale(.96)}
+button:hover:not(:disabled){border-color:rgba(53,242,220,.6);box-shadow:0 0 14px rgba(53,242,220,.2)}
+button.main{position:relative;overflow:hidden;border:0;background:linear-gradient(135deg,#35f2dc,#4aa8ff);color:#02161a;font-weight:800;letter-spacing:.03em;border-radius:14px;box-shadow:0 0 20px rgba(53,242,220,.35)}
+button.main::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:hmSweep 4.5s 1.5s infinite;pointer-events:none}
+button.main:hover:not(:disabled){box-shadow:0 0 28px rgba(53,242,220,.55);border:0}
+#scanDate{background:linear-gradient(135deg,#7b5cff,#4aa8ff)!important;color:#fff!important;box-shadow:0 0 20px rgba(123,92,255,.4)}
+button:disabled{opacity:.45}
+.chips button{border-radius:999px;font-weight:700;color:var(--accent);background:rgba(53,242,220,.07)}
+.chain{color:var(--ink)}
+input[type="checkbox"]{accent-color:var(--accent)}
+
+/* Caméra */
+#camwrap{border:1px solid rgba(53,242,220,.6);border-radius:16px;box-shadow:0 0 24px rgba(53,242,220,.3)}
+video{border-radius:16px}
+#msg{color:var(--muted)}
+
+/* Liste du frigo */
+.shelf{margin:4px 2px 10px}
+.shelf h2{font-size:.95rem;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);text-shadow:0 0 12px rgba(53,242,220,.5)}
+.shelf span{color:var(--muted)}
+#list li{position:relative;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:16px;box-shadow:-8px 0 20px -10px var(--c),0 0 18px rgba(53,242,220,.05);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.d b{text-shadow:0 0 14px var(--c)}
+.n{color:var(--ink)}.dt{color:var(--muted)}
+.act button{border-radius:10px}
+.empty{color:var(--muted);border:1px dashed rgba(53,242,220,.35);border-radius:16px;background:rgba(53,242,220,.03)}
+.stats{color:var(--muted)}
+
+/* Idées de repas */
+.suggestions h3{font-size:.95rem;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);text-shadow:0 0 12px rgba(53,242,220,.5)}
+.recipe-criteria{border:1px solid var(--line);border-radius:16px;background:rgba(53,242,220,.04)}
+.suggestion-card{background:rgba(53,242,220,.05);border:1px solid var(--line);border-radius:16px;transition:border-color .2s,box-shadow .2s}
+.suggestion-card:hover{border-color:rgba(53,242,220,.55);box-shadow:0 0 18px rgba(53,242,220,.15)}
+.suggestion-card .match{background:rgba(53,242,220,.14);color:var(--accent);border:1px solid rgba(53,242,220,.3)}
+.suggestion-meta{color:var(--ink)!important}
+.suggestion-actions button:first-child{color:var(--accent)}
+.criteria-status{color:var(--muted)}
+
+/* Profil */
+.profile-title{color:var(--ink)}
+.appliance-card{background:rgba(53,242,220,.04);border:1px solid var(--line);border-radius:16px;transition:border-color .2s,box-shadow .2s,transform .15s,background .2s}
+.appliance-card:active{transform:scale(.97)}
+.appliance-card:has(input:checked){background:rgba(53,242,220,.12);border-color:var(--accent);box-shadow:0 0 20px rgba(53,242,220,.3),inset 0 0 0 1px var(--accent)}
+.appliance-picture{filter:drop-shadow(0 0 8px rgba(53,242,220,.45))}
+
+/* Courses */
+.shopping-header{background:linear-gradient(120deg,rgba(53,242,220,.18),rgba(123,92,255,.08) 55%,transparent);border-bottom:1px solid var(--line)}
+.shopping-header h2{text-transform:uppercase;letter-spacing:.14em;font-size:1.05rem;color:var(--accent);text-shadow:0 0 12px rgba(53,242,220,.5)}
+.shopping-add{border-bottom:1px solid var(--line)}
+.shopping-add button{background:linear-gradient(135deg,#35f2dc,#4aa8ff);border:0;color:#02161a;box-shadow:0 0 16px rgba(53,242,220,.35)}
+.shopping-entry{border-bottom:1px solid var(--line);background:transparent}
+.shopping-entry button:hover{color:var(--bad);border-color:var(--bad);box-shadow:0 0 12px rgba(255,107,122,.3)}
+.shopping-summary{border-top:1px solid var(--accent);background:linear-gradient(90deg,rgba(53,242,220,.12),transparent);box-shadow:0 -10px 24px -14px rgba(53,242,220,.5)}
+.shopping-total{color:var(--accent);text-shadow:0 0 16px rgba(53,242,220,.65)}
+
+/* Fenêtres (recettes, liste détectée) */
+dialog.recipe-dialog{background:rgba(5,20,26,.94);color:var(--ink);border:1px solid rgba(53,242,220,.5);border-radius:22px;box-shadow:0 0 40px rgba(53,242,220,.25),0 20px 60px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+dialog.recipe-dialog[open]{animation:nzPop .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes nzPop{from{opacity:0;transform:translateY(24px) scale(.95)}to{opacity:1;transform:none}}
+dialog.recipe-dialog::backdrop{background:rgba(0,6,10,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.recipe-head h2{color:var(--accent);text-shadow:0 0 14px rgba(53,242,220,.45)}
+.recipe-dialog h3{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:.9rem}
+.grocery-row{background:rgba(53,242,220,.05);border:1px solid var(--line);border-radius:12px}
+.recipe-ingredients .missing,.recipe-availability,.grocery-intro{color:var(--muted)}
+
+/* Barre d'onglets : même verre néon partout */
+.tabs{background:var(--nav-bg);border:1px solid rgba(90,255,235,.28);box-shadow:0 0 34px rgba(40,255,220,.16),inset 0 0 18px rgba(40,255,220,.06),0 12px 30px rgba(0,0,0,.45)}
+.tabs button{color:#8fb9b8;border:0}
+.tabs button:hover:not(:disabled){box-shadow:none}
+.tabs button[aria-selected="true"]{background:linear-gradient(135deg,#35f2dc,#4aa8ff);color:#02161a;box-shadow:0 0 20px rgba(53,242,220,.6)}
+@media (prefers-reduced-motion:reduce){body::before,body::after,main>h1,.sub::before,button.main::after,#fridgeTab,#profileTab,#shoppingTab{animation:none!important}}
+</style>
+
+<style id="shareStyle">
+.sh-block{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.sh-block h2{margin:0 0 4px;font-size:.95rem;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);text-shadow:0 0 12px rgba(53,242,220,.5)}
+.sh-copy{margin:0 0 14px;color:var(--muted);font-size:.92rem}
+.sh-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sh-actions button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;font-weight:700;border-radius:16px;line-height:1.2;text-align:center}
+.sh-actions button span{font-size:1.6rem;filter:drop-shadow(0 0 8px rgba(53,242,220,.5))}
+.sh-actions small{color:var(--muted);font-weight:400;font-size:.76rem}
+details.sh-live{margin-top:14px;border:1px solid var(--line);border-radius:16px;background:rgba(53,242,220,.04);padding:4px 14px}
+details.sh-live summary{cursor:pointer;padding:12px 0;font-weight:700;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.sh-live summary::-webkit-details-marker{display:none}
+details.sh-live summary::after{content:"+";font-size:1.3rem;transition:transform .25s}
+details.sh-live[open] summary::after{transform:rotate(45deg)}
+.sh-live-body{padding:2px 0 14px}
+.sh-live-body[hidden]{display:none}
+.sh-code{margin:6px 0 12px;padding:16px;text-align:center;font-size:2.1rem;font-weight:800;letter-spacing:.3em;padding-left:calc(16px + .3em);color:#fff;border:1px solid rgba(53,242,220,.6);border-radius:16px;background:rgba(53,242,220,.08);text-shadow:0 0 18px var(--accent);box-shadow:0 0 24px rgba(53,242,220,.25),inset 0 0 18px rgba(53,242,220,.1)}
+.sh-state{display:flex;align-items:center;gap:8px;margin:0 0 6px;color:var(--muted);font-size:.88rem}
+.sh-state i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:nzBlink 2s ease-in-out infinite}
+.sh-state.off i{background:var(--bad);box-shadow:0 0 10px var(--bad);animation:none}
+.sh-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.sh-row button{padding:10px 16px;font-weight:700}
+.sh-help{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:.82rem;display:grid;gap:4px}
+.sh-help a{color:var(--accent)}
+#shMsg{min-height:1.3em;margin:12px 0 0;color:var(--muted);font-size:.88rem}
+.sh-leave{margin-top:10px;width:100%;color:var(--bad);border-color:rgba(255,107,122,.4)}
+
+/* --- Comptes & frigos partagés --- */
+.ac-select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px}
+.ac-select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ac-members{display:grid;gap:6px;margin:0 0 12px}
+.ac-member{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(53,242,220,.04);font-size:.92rem}
+.ac-member small{color:var(--muted)}
+.ac-member button{padding:4px 10px;font-size:.78rem;color:var(--bad);border-color:rgba(255,107,122,.4)}
+.ac-link{display:block;width:100%;margin-top:6px;background:transparent;border:0;color:var(--muted);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#acForm .main{margin-top:16px}
+#acIn label,#acOut label{margin-top:14px}
+.ac-invite{margin:0 0 14px;padding:12px 14px;border:1px solid rgba(53,242,220,.6);border-radius:14px;background:rgba(53,242,220,.08);color:var(--ink);font-weight:600}
+.ac-invite[hidden]{display:none}
+.fridge-badge{margin:4px 0 0;font-size:.82rem;color:var(--accent)}
+.fridge-badge[hidden]{display:none}
+</style>
+</head>
+<body class="on-home">
+<main>
+<h1>Mon frigo</h1>
+<p class="fridge-badge" id="fridgeBadge" hidden></p>
+<p class="sub" id="sum">Scanne un produit, note sa date, on s’occupe du reste.</p>
+<nav class="tabs" aria-label="Navigation principale">
+  <button type="button" class="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>Accueil</span></button>
+  <button type="button" class="tab" data-tab="fridge" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M6 10.5h12"/><path d="M9.5 6v1.5M9.5 13v3"/></svg><span>Mon frigo</span></button>
+  <button type="button" class="tab" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.700 2 7.500 6"/></svg><span>Profil</span></button>
+  <button type="button" class="tab" data-tab="shopping" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 3.5h3l2.2 11h10.600l2.200-8H6.200"/><circle cx="9.500" cy="19.500" r="1.500"/><circle cx="17" cy="19.500" r="1.500"/></svg><span>Courses</span><span id="shoppingTabCount" class="tab-count" hidden></span></button>
+</nav>
+
+<section id="fridgeTab">
+<section class="panel" aria-label="Ajouter un produit">
+  <button id="scanGrocery" class="main" type="button" style="margin-top:0">Scanner une liste de courses</button>
+  <input id="groceryPhoto" type="file" accept="image/*" capture="environment" hidden>
+  <button id="scan" class="main" type="button" style="margin-top:0">Scanner un code-barres</button>
+  <label class="chain"><input type="checkbox" id="chain" checked> Enchaîner les scans : la caméra se rouvre après chaque ajout</label>
+  <div id="camwrap" hidden><video id="cam" playsinline muted></video><canvas id="ov"></canvas></div>
+  <label for="code">Code-barres</label>
+  <input id="code" inputmode="numeric" placeholder="3017620422003">
+  <label for="name">Nom du produit</label>
+  <input id="name" placeholder="Yaourt nature">
+  <label for="date">Date de péremption</label>
+  <input id="date" type="date">
+  <button id="scanDate" type="button" class="main" style="margin-top:8px; background:linear-gradient(135deg,#0f766e,#14b8a6);">Scanner la date à la caméra</button>
+  <div id="dateScanControls" class="row" hidden><button id="readDateAgain" type="button">Analyser maintenant</button><button id="closeDateCamera" type="button">Fermer la caméra</button></div>
+  <div class="chips" aria-label="Raccourcis de date">
+    <button type="button" data-d="2">+2 j</button><button type="button" data-d="5">+5 j</button><button type="button" data-d="7">+7 j</button><button type="button" data-d="14">+14 j</button><button type="button" data-d="30">+30 j</button>
+  </div>
+  <button class="main" id="add" type="button">Ajouter au frigo</button>
+  <p id="msg" role="status" aria-live="polite"></p>
+</section>
+
+<div class="shelf"><h2>Dans le frigo</h2><span id="cnt"></span></div>
+<ul id="list"></ul>
+<p class="stats" id="stats"></p>
+<section class="panel suggestions" aria-live="polite">
+  <h3>Idées de repas</h3>
+  <div class="recipe-criteria">
+    <div class="criteria-grid">
+      <label for="recipeTime">Temps maximum
+        <select id="recipeTime"><option value="">Choisir...</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="any">Sans limite</option></select>
+      </label>
+      <label for="recipeDifficulty">Difficulté maximale
+        <select id="recipeDifficulty"><option value="">Choisir...</option><option value="easy">Facile</option><option value="medium">Intermédiaire</option><option value="any">Sans limite</option></select>
+      </label>
+    </div>
+    <button id="applyRecipeCriteria" class="main" type="button" disabled>Afficher les idées</button>
+    <p id="criteriaStatus" class="criteria-status" role="status" aria-live="polite">Choisis un temps et une difficulté pour afficher les repas.</p>
+  </div>
+  <div id="suggestions" class="suggestion-list" hidden></div>
+</section>
+</section>
+<section id="profileTab" class="panel" hidden>
+  <h2 class="profile-title">Ton équipement de cuisine</h2>
+  <p class="profile-copy">Coche les appareils que tu peux utiliser. Les idées de repas s’adapteront à ton équipement.</p>
+  <div id="applianceGrid" class="appliance-grid">
+    <label class="appliance-card"><input type="checkbox" value="hob"><span class="appliance-picture" aria-hidden="true">🍳</span><strong>Plaques de cuisson</strong><small>Casserole et poêle</small></label>
+    <label class="appliance-card"><input type="checkbox" value="oven"><span class="appliance-picture" aria-hidden="true">♨️</span><strong>Four</strong><small>Cuissons au four</small></label>
+    <label class="appliance-card"><input type="checkbox" value="microwave"><span class="appliance-picture" aria-hidden="true">📡</span><strong>Micro-ondes</strong><small>Réchauffer et cuire vite</small></label>
+    <label class="appliance-card"><input type="checkbox" value="blender"><span class="appliance-picture" aria-hidden="true">🥤</span><strong>Mixeur</strong><small>Soupes et préparations</small></label>
+    <label class="appliance-card"><input type="checkbox" value="airFryer"><span class="appliance-picture" aria-hidden="true">🍟</span><strong>Air fryer</strong><small>Cuisson à air chaud</small></label>
+    <label class="appliance-card"><input type="checkbox" value="riceCooker"><span class="appliance-picture" aria-hidden="true">🍚</span><strong>Cuiseur à riz</strong><small>Riz et céréales</small></label>
+    <label class="appliance-card"><input type="checkbox" value="multiCooker"><span class="appliance-picture" aria-hidden="true">🍲</span><strong>Robot cuiseur</strong><small>Cuisson tout-en-un</small></label>
+    <label class="appliance-card"><input type="checkbox" value="other"><span class="appliance-picture" aria-hidden="true">🧰</span><strong>Autre appareil</strong><small>À préciser</small></label>
+  </div>
+  <label id="otherApplianceWrap" class="other-appliance-wrap" for="otherAppliance" hidden>Quel appareil ?<input id="otherAppliance" maxlength="60" placeholder="Ex. plancha, grille-pain, mijoteuse"></label>
+  <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p>
+  <div id="shareBlock" class="sh-block">
+    <h2>Compte et frigo partagé</h2>
+
+    <div id="acOut">
+      <p class="ac-invite" id="acInviteBanner" hidden></p>
+      <p class="sh-copy">Crée un compte gratuit pour retrouver ton frigo sur tous tes appareils et le partager avec ta famille ou ton colocataire.</p>
+      <p id="acNoLib" class="sh-copy" hidden>Les comptes ne sont pas disponibles pour l’instant (connexion internet ?). Ton frigo local continue de fonctionner.</p>
+      <div id="acForm">
+        <div id="acNameWrap"><label for="acName">Ton prénom</label>
+        <input id="acName" maxlength="40" autocomplete="given-name" placeholder="Ex. Théo"></div>
+        <label for="acEmail">Email</label>
+        <input id="acEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="toi@exemple.fr">
+        <label for="acPass">Mot de passe (8 caractères minimum)</label>
+        <input id="acPass" type="password" autocomplete="current-password" minlength="8">
+        <button type="button" class="main" id="acSubmit">Se connecter</button>
+        <button type="button" class="ac-link" id="acToggle">Pas encore de compte ? En créer un</button>
+        <button type="button" class="ac-link" id="acForgot">Mot de passe oublié</button>
+      </div>
+    </div>
+
+    <div id="acIn" hidden>
+      <p class="sh-state" id="shState"><i></i><span>Connecté</span></p>
+      <p class="sh-copy" id="acWho" style="margin-bottom:10px"></p>
+      <label for="acFridgeSel">Frigo actif</label>
+      <select id="acFridgeSel" class="ac-select" aria-label="Frigo actif"></select>
+
+      <div id="acFridgeBox" hidden>
+        <label for="acInvEmail">Inviter par email</label>
+        <div class="sh-row"><input id="acInvEmail" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="proche@exemple.fr"><button type="button" id="acInvite">Inviter</button></div>
+        <p class="sh-copy" style="margin:8px 0 0">Ton application de mail s’ouvre avec un lien à envoyer. La personne crée un compte ou se connecte, puis accède à ce frigo. Le lien marche une fois, pendant 7 jours.</p>
+        <div class="ac-members" id="acInvites" style="margin-top:10px"></div>
+        <label>Ou partager le code</label>
+        <div class="sh-code" id="shCode"></div>
+        <p class="sh-copy" style="margin:0 0 10px">Tes proches créent un compte, puis entrent ce code dans « Rejoindre ».</p>
+        <div class="sh-actions" style="grid-template-columns:1fr 1fr">
+          <button type="button" id="shCopy" style="flex-direction:row;justify-content:center;padding:12px">Copier le code</button>
+          <button type="button" id="shShareCode" style="flex-direction:row;justify-content:center;padding:12px">Envoyer le code</button>
+        </div>
+        <label>Membres</label>
+        <div class="ac-members" id="acMembers"></div>
+        <div class="sh-actions" id="acOwnerTools" style="grid-template-columns:1fr 1fr" hidden>
+          <button type="button" id="acRename" style="flex-direction:row;justify-content:center;padding:12px">Renommer</button>
+          <button type="button" id="acNewCode" style="flex-direction:row;justify-content:center;padding:12px">Changer le code</button>
+        </div>
+        <button type="button" class="sh-leave" id="acLeave">Quitter ce frigo</button>
+      </div>
+
+      <details class="sh-live" id="acNew">
+        <summary>Créer ou rejoindre un frigo partagé</summary>
+        <div class="sh-live-body">
+          <label for="acFridgeName">Nom du nouveau frigo</label>
+          <input id="acFridgeName" maxlength="40" placeholder="Ex. Maison, Coloc, Mamie…">
+          <button type="button" class="main" id="acCreate">Créer un frigo partagé</button>
+          <p class="sh-copy" id="acCopyHint" style="margin:10px 0 0">Le contenu de ton frigo actuel sur cet appareil est copié dedans.</p>
+          <label for="f-code">Ou rejoindre avec un code</label>
+          <div class="sh-row"><input id="f-code" maxlength="8" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABCD2345"><button type="button" id="shJoin">Rejoindre</button></div>
+        </div>
+      </details>
+      <button type="button" class="ac-link" id="acLogout">Se déconnecter</button>
+    </div>
+
+    <details class="sh-live" id="acFile">
+      <summary>Partager sans compte (fichier)</summary>
+      <div class="sh-live-body">
+        <p class="sh-copy" style="margin:0 0 10px">Envoie une copie de ton frigo par message ; utile pour un envoi ponctuel.</p>
+        <div class="sh-actions">
+          <button type="button" id="shSend"><span aria-hidden="true">📤</span>Envoyer mon frigo<small>Par message, WhatsApp…</small></button>
+          <button type="button" id="shImport"><span aria-hidden="true">📥</span>Recevoir un frigo<small>Ouvrir un fichier reçu</small></button>
+        </div>
+        <input id="shFile" type="file" accept=".json,application/json" hidden>
+      </div>
+    </details>
+    <p id="shMsg" role="status" aria-live="polite"></p>
+  </div>
+
+</section>
+<section id="shoppingTab" class="panel shopping-panel" hidden>
+  <header class="shopping-header">
+    <h2>Liste de courses</h2>
+    <p>Les produits consommés ou jetés sont proposés ici. Coche seulement ceux à racheter.</p>
+  </header>
+  <form id="shoppingAddForm" class="shopping-add">
+    <input id="shoppingName" type="text" maxlength="80" placeholder="Ajouter un article" aria-label="Nom de l’article à ajouter">
+    <button type="submit">Ajouter</button>
+  </form>
+  <ul id="shoppingItems" class="shopping-items"></ul>
+  <p id="shoppingEmpty" class="empty shopping-empty" hidden>Ta liste est vide. Les produits consommés ou jetés apparaîtront ici.</p>
+  <footer class="shopping-summary">
+    <div><strong>Total estimé</strong><p id="shoppingSummaryText">Coche des articles et renseigne leur prix.</p></div>
+    <output id="shoppingTotal" class="shopping-total" aria-live="polite">0,00 €</output>
+  </footer>
+</section>
+<dialog id="recipeDialog" class="recipe-dialog" aria-labelledby="recipeTitle">
+  <div class="recipe-content">
+    <div class="recipe-head"><h2 id="recipeTitle"></h2><button id="closeRecipe" type="button">Fermer</button></div>
+    <label for="recipeServings">Nombre de personnes</label>
+    <input id="recipeServings" type="number" min="1" max="20" step="1" value="2">
+    <h3>Ingrédients</h3>
+    <ul id="recipeIngredients" class="recipe-ingredients"></ul>
+    <p id="recipeAvailability" class="recipe-availability"></p>
+    <h3>Préparation</h3>
+    <ol id="recipeSteps" class="recipe-steps"></ol>
+  </div>
+</dialog>
+<dialog id="groceryDialog" class="recipe-dialog" aria-labelledby="groceryTitle">
+  <div class="recipe-content">
+    <div class="recipe-head"><h2 id="groceryTitle">Liste de courses détectée</h2><button id="closeGrocery" type="button">Fermer</button></div>
+    <p class="grocery-intro">Vérifie les produits, décoche ceux à ignorer et ajoute une date de péremption si tu la connais.</p>
+    <p id="groceryStatus" class="criteria-status" role="status" aria-live="polite"></p>
+    <div id="groceryItems" class="grocery-list"></div>
+    <div class="grocery-actions"><button id="addGroceries" class="main" type="button" disabled>Ajouter au frigo</button><button id="rescanGroceries" type="button">Nouvelle photo</button></div>
+  </div>
+</dialog>
+</main>
+
+<section id="homeTab" aria-label="Accueil">
+  <div class="hm-aurora"></div>
+  <canvas id="homeFx"></canvas>
+  <div class="hm-grid"></div>
+  <div class="hm-scan"></div>
+  <span class="hm-corner tl"></span><span class="hm-corner tr"></span>
+  <div class="hm-stage" id="hmStage">
+    <div class="hm-ring r1"></div><div class="hm-ring r2"></div>
+    <div class="hm-tilt" id="hmTilt">
+      <div class="hm-glow"></div>
+      <div class="hm-float"><svg class="hm-fridge" viewBox="0 0 200 280" aria-hidden="true">
+  <defs>
+    <linearGradient id="hmStroke" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#35f2dc"/><stop offset=".55" stop-color="#4aa8ff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="hmIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bffcff" stop-opacity=".95"/><stop offset=".5" stop-color="#35f2dc" stop-opacity=".45"/><stop offset="1" stop-color="#0a3a4a" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="hmDoorG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#35f2dc" stop-opacity=".22"/></linearGradient>
+    <linearGradient id="hmBeamG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35f2dc" stop-opacity="0"/><stop offset=".85" stop-color="#35f2dc" stop-opacity=".55"/><stop offset="1" stop-color="#e8fffd" stop-opacity=".95"/></linearGradient>
+    <clipPath id="hmClip"><rect x="34" y="14" width="132" height="252" rx="18"/></clipPath>
+  </defs>
+  <rect class="hm-body" x="30" y="10" width="140" height="260" rx="22" fill="rgba(6,28,36,.55)" stroke="url(#hmStroke)" stroke-width="2.6"/>
+  <g clip-path="url(#hmClip)" class="hm-fade">
+    <rect x="34" y="14" width="132" height="252" fill="url(#hmIn)"/>
+    <path d="M34 100h132" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+    <g stroke="rgba(255,255,255,.6)" stroke-width="2"><path d="M44 78h112"/><path d="M44 152h112"/><path d="M44 200h112"/><path d="M44 244h112"/></g>
+    <g fill="#fff">
+      <rect class="hm-item" x="52" y="58" width="16" height="20" rx="4" fill="#ffd166"/>
+      <rect class="hm-item" x="74" y="64" width="22" height="14" rx="4" fill="#ff7ab6"/>
+      <rect class="hm-item" x="104" y="54" width="14" height="24" rx="5" fill="#7bffb2"/>
+      <rect class="hm-item" x="126" y="62" width="22" height="16" rx="4" fill="#9ad1ff"/>
+      <rect class="hm-item" x="50" y="124" width="20" height="28" rx="5" fill="#9ad1ff"/>
+      <rect class="hm-item" x="78" y="132" width="26" height="20" rx="6" fill="#ff9f68"/>
+      <rect class="hm-item" x="112" y="120" width="16" height="32" rx="6" fill="#7bffb2"/>
+      <rect class="hm-item" x="134" y="134" width="16" height="18" rx="4" fill="#ffd166"/>
+      <rect class="hm-item" x="52" y="174" width="30" height="26" rx="6" fill="#ff7ab6"/>
+      <rect class="hm-item" x="94" y="180" width="22" height="20" rx="6" fill="#c4b5fd"/>
+      <rect class="hm-item" x="126" y="170" width="24" height="30" rx="6" fill="#7bffb2"/>
+      <rect class="hm-item" x="54" y="222" width="38" height="22" rx="6" fill="#ffd166"/>
+      <rect class="hm-item" x="104" y="214" width="20" height="30" rx="5" fill="#9ad1ff"/>
+      <rect class="hm-item" x="132" y="226" width="20" height="18" rx="5" fill="#ff9f68"/>
+    </g>
+    <rect class="hm-beam" x="34" y="-34" width="132" height="34" fill="url(#hmBeamG)"/>
+    <g class="hm-door d1"><rect x="34" y="14" width="132" height="84" fill="url(#hmDoorG)" stroke="rgba(53,242,220,.7)" stroke-width="1.5"/><rect x="152" y="40" width="5" height="34" rx="2.500" fill="#e8fffd"/></g>
+    <g class="hm-door d2"><rect x="34" y="102" width="132" height="164" fill="url(#hmDoorG)" stroke="rgba(53,242,220,.7)" stroke-width="1.5"/><rect x="152" y="130" width="5" height="52" rx="2.500" fill="#e8fffd"/></g>
+  </g>
+</svg></div>
+      <div class="hm-orbit"><div class="hm-o" style="--a:0deg"><span style="--a:0deg;--d:1.20s">🥛</span></div><div class="hm-o" style="--a:60deg"><span style="--a:60deg;--d:1.38s">🥕</span></div><div class="hm-o" style="--a:120deg"><span style="--a:120deg;--d:1.56s">🧀</span></div><div class="hm-o" style="--a:180deg"><span style="--a:180deg;--d:1.74s">🍎</span></div><div class="hm-o" style="--a:240deg"><span style="--a:240deg;--d:1.92s">🛒</span></div><div class="hm-o" style="--a:300deg"><span style="--a:300deg;--d:2.10s">🥩</span></div></div>
+    </div>
+  </div>
+  <h1 class="hm-title">MON FRIGO</h1>
+  <div class="hm-load"><i></i></div>
+  <button type="button" class="hm-enter" id="hmEnter">Entrer <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const SUPABASE_URL='https://ivaswprggznpmjlkcxbe.supabase.co';
+const SUPABASE_KEY='sb_publishable_LE8l2w5uImD_hCoxicNMcw_QoOXZD7T';
+const lsG=k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}};
+const lsS=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}};
+const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+let sess=lsG('frigo_sess'),online=true,famOpen=false;
+if(!UUID_RE.test(sess)){sess='';lsS('frigo_sess','')}   // anciens codes (Firebase) : plus valides
+let sb=null;
+try{if(window.supabase)sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){sb=null}
+let me=null,meName='',fridges=[],members={},invites=[];
+const nk=k=>String(k).replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);
+const DATE_RE=/^\d{4}-\d{2}-\d{2}$/;
+const itemRow=(fid,i)=>({fridge_id:fid,id:Number(i.id),code:String(i.code||'').slice(0,40),name:String(i.name).slice(0,120),expiry_date:DATE_RE.test(String(i.date||''))?i.date:null});
+const shopRow=(fid,e)=>({fridge_id:fid,id:String(e.id).slice(0,60),name:String(e.name).slice(0,80),price:(e.price===''||e.price==null||isNaN(Number(e.price)))?null:Number(e.price),checked:e.checked===true});
+const shoppingDeleted=new Set();
+const cloud={
+  async addItems(list){
+    const rows=list.map(i=>itemRow(sess,i));
+    const {error}=await sb.from('frigo_items').upsert(rows,{onConflict:'fridge_id,id',ignoreDuplicates:true});
+    if(error)throw error;
+  },
+  async setName(code,name){
+    const k=nk(code);if(!k)return;
+    const {error}=await sb.from('frigo_product_names').upsert({fridge_id:sess,code:k,name:String(name).slice(0,120)},{onConflict:'fridge_id,code'});
+    if(error)throw error;
+  },
+  async removeItem(id,kind){
+    const {error}=await sb.from('frigo_items').update({removed_kind:kind,removed_by:me.id,removed_at:new Date().toISOString()}).eq('fridge_id',sess).eq('id',id);
+    if(error)throw error;
+  },
+  async syncShopping(){
+    const rows=shoppingList.map(e=>shopRow(sess,e));
+    if(rows.length){const {error}=await sb.from('frigo_shopping').upsert(rows,{onConflict:'fridge_id,id'});if(error)throw error}
+    if(shoppingDeleted.size){
+      const ids=[...shoppingDeleted];
+      const {error}=await sb.from('frigo_shopping').delete().eq('fridge_id',sess).in('id',ids);
+      if(error)throw error;
+      shoppingDeleted.clear();
+    }
+  },
+  async addMeal(name){
+    const {error}=await sb.from('frigo_meals').insert({fridge_id:sess,name:String(name).slice(0,120),day:localDateKey()});
+    if(error)throw error;
+  }
+};
+let items=[],hist={eaten:0,thrown:0},names={},done={},mealHistory=[],profile={appliances:[],otherAppliance:''},shoppingList=[],stream=null,timer=null;
+let recipeCriteria={maxMinutes:null,difficulty:''},criteriaApplied=false;
+function key(){return sess?'frigo_s_'+sess:'frigo'}
+function loadCore(){try{const d=JSON.parse(lsG(key())||'{}');items=d.items||[];hist=d.hist||hist;names=d.names||{};done=d.done||{};mealHistory=Array.isArray(d.mealHistory)?d.mealHistory.filter(entry=>entry&&typeof entry.name==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(entry.date)):[];profile={appliances:Array.isArray(d.profile&&d.profile.appliances)?d.profile.appliances.filter(value=>['hob','oven','microwave','blender','airFryer','riceCooker','multiCooker','other'].includes(value)):[],otherAppliance:String(d.profile&&d.profile.otherAppliance||'').slice(0,60)};shoppingList=Array.isArray(d.shoppingList)?d.shoppingList.filter(entry=>entry&&typeof entry.name==='string').map(entry=>({id:String(entry.id||Date.now()),name:entry.name.slice(0,80),price:entry.price===''?'':String(Number(entry.price)||''),checked:entry.checked===true})):[]}catch(e){}}
+function save(){lsS(key(),JSON.stringify({items,hist,names,done,mealHistory,profile,shoppingList}));lsS('frigo_profile',JSON.stringify(profile))}
+function applyStoredProfile(){
+  try{
+    const p=JSON.parse(lsG('frigo_profile')||'null');if(!p)return;
+    const ok=['hob','oven','microwave','blender','airFryer','riceCooker','multiCooker','other'];
+    profile={appliances:Array.isArray(p.appliances)?p.appliances.filter(v=>ok.includes(v)):[],otherAppliance:String(p.otherAppliance||'').slice(0,60)};
+  }catch(e){}
+}
+function load(){loadCore();applyStoredProfile()}
+const msg=t=>{$('#msg').textContent=t};
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normalize=(s='')=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const recipeCatalog=[
+  {name:'Omelette aux légumes', ingredients:['oeuf','tomate','oignon','poivron','courgette','champignon','fromage','epinard']},
+  {name:'Salade de riz', ingredients:['riz','tomate','concombre','avocat','maïs','oignon','poivron','oeuf']},
+  {name:'Soupe de légumes', ingredients:['carotte','pommes de terre','poireau','oignon','courgette','légume','bouillon','poivron']},
+  {name:'Pâtes au fromage', ingredients:['pates','fromage','oignon','champignon','poivron','tomate','basilic']},
+  {name:'Wrap végétarien', ingredients:['wrap','tomate','salade','oignon','avocat','poivron','fromage','courgette']},
+  {name:'Poêlée de pommes de terre', ingredients:['pommes de terre','oignon','poivron','champignon','courgette','fromage']},
+  {name:'Salade verte', ingredients:['salade','tomate','concombre','oignon','avocat','fromage','oeuf']},
+  {name:'Tacos maison', ingredients:['tortilla','tomate','oignon','salade','maïs','poivron','fromage']},
+  {name:'Velouté de carottes', ingredients:['carotte','oignon','pommes de terre','lait','beurre','poivre','creme']},
+  {name:'Pizza facile', ingredients:['pain','tomate','fromage','champignon','oignon','poivron']},
+  {name:'Ratatouille', ingredients:['courgette','tomate','oignon','poivron','aubergine','ail','basilic']},
+  {name:'Curry de légumes', ingredients:['courgette','carotte','poivron','oignon','pois','lait de coco','ail','gingembre']},
+  {name:'Bowl quinoa', ingredients:['quinoa','avocat','tomate','concombre','salade','maïs','poivron','oeuf']},
+  {name:'Gratin de courgettes', ingredients:['courgette','fromage','oignon','lait','beurre','ail','pommes de terre']},
+  {name:'Salade de pois chiches', ingredients:['pois chiches','tomate','concombre','oignon','avocat','citron','persil']},
+  {name:'Pasta primavera', ingredients:['pates','courgette','tomate','champignon','poivron','ail','parmesan']},
+  {name:'Gaspacho', ingredients:['tomate','concombre','oignon','ail','citron','basilic','poivron']},
+  {name:'Frittata', ingredients:['oeuf','poivron','champignon','oignon','fromage','epinard']},
+  {name:'Crêpes aux légumes', ingredients:['farine','oeuf','courgette','poivron','oignon','fromage','lait']},
+  {name:'Risotto aux champignons', ingredients:['riz','champignon','oignon','beurre','fromage','bouillon']},
+  {name:'Chips de légumes', ingredients:['courgette','carotte','poivron','oignon','huile','sel']},
+  {name:'Mini burritos', ingredients:['tortilla','haricots','tomate','oignon','fromage','salade','maïs']},
+  {name:'Moussaka légère', ingredients:['aubergine','tomate','oignon','ail','fromage','pommes de terre']},
+  {name:'Potage de pois cassés', ingredients:['pois cassés','carotte','oignon','pommes de terre','bouillon','lait']},
+  {name:'Salade niçoise', ingredients:['tomate','oeuf','olive','oignon','poivron','concombre','salade','poisson']},
+  {name:'Panang curry', ingredients:['poisson','lait de coco','poivron','oignon','carotte','courgette','gingembre']},
+  {name:'Sauté de légumes', ingredients:['brocoli','poivron','champignon','oignon','carotte','ail','soja']},
+  {name:'Aubergines grillées', ingredients:['aubergine','tomate','ail','oignon','fromage','basilic']},
+  {name:'Galette aux épinards', ingredients:['epinard','oeuf','fromage','feuille de pâte','oignon']},
+  {name:'Toast avocat', ingredients:['pain','avocat','tomate','oeuf','oignon','citron']},
+  {name:'Poke bowl', ingredients:['riz','poisson','avocat','concombre','tomate','soja','oignon']},
+  {name:'Cassoulet végétal', ingredients:['haricots','tomate','oignon','carotte','poivron','courgette','ail']},
+  {name:'Tortilla espagnole', ingredients:['pommes de terre','oeuf','oignon','poivron','huile']},
+  {name:'Lasagnes végétales', ingredients:['lasagnes','courgette','tomate','fromage','oignon','ail','champignon']},
+  {name:'Salade de pâtes', ingredients:['pates','tomate','salade','olive','oignon','poivron','fromage']},
+  {name:'Taboulé', ingredients:['semoule','tomate','concombre','oignon','persil','citron','menthe']},
+  {name:'Nuggets de légumes', ingredients:['courgette','carotte','poivron','farine','oeuf','fromage']},
+  {name:'Paella rapide', ingredients:['riz','poisson','poivron','tomate','oignon','petits pois','safran','bouillon']},
+  {name:'Pancakes salés', ingredients:['farine','oeuf','oignon','poivron','fromage','lait']},
+  {name:'Légumes vapeur au beurre', ingredients:['carotte','brocoli','courgette','poivron','beurre','ail']},
+  {name:'Stir-fry de tofu', ingredients:['tofu','poivron','champignon','oignon','courgette','soja','ail']},
+  {name:'Caponata', ingredients:['aubergine','tomate','oignon','courgette','capres','ail','basilic']}
+];
+const recipeAmounts={
+  'oeuf':[4,'œuf','œufs'],'tomate':[2,'tomate','tomates'],'oignon':[1,'oignon','oignons'],'poivron':[1,'poivron','poivrons'],
+  'courgette':[1,'courgette','courgettes'],'champignon':[150,'g','g'],'fromage':[100,'g','g'],'epinard':[100,'g','g'],
+  'riz':[150,'g','g'],'concombre':[1,'concombre','concombres'],'avocat':[1,'avocat','avocats'],'mais':[120,'g','g'],
+  'carotte':[2,'carotte','carottes'],'pommes de terre':[400,'g','g'],'poireau':[1,'poireau','poireaux'],'legume':[300,'g','g'],
+  'bouillon':[500,'ml','ml'],'pates':[180,'g','g'],'basilic':[10,'g','g'],'wrap':[2,'galette','galettes'],
+  'salade':[100,'g','g'],'tortilla':[4,'tortilla','tortillas'],'lait':[200,'ml','ml'],'beurre':[20,'g','g'],
+  'poivre':[1,'g','g'],'creme':[100,'ml','ml'],'aubergine':[1,'aubergine','aubergines'],'ail':[2,'gousse','gousses'],
+  'pois':[120,'g','g'],'lait de coco':[200,'ml','ml'],'gingembre':[10,'g','g'],'quinoa':[150,'g','g'],
+  'pois chiches':[240,'g égouttés','g égouttés'],'citron':[1,'citron','citrons'],'persil':[10,'g','g'],
+  'parmesan':[40,'g','g'],'olive':[40,'g','g'],'poisson':[300,'g','g'],'brocoli':[200,'g','g'],
+  'soja':[30,'ml','ml'],'tofu':[250,'g','g'],'haricots':[240,'g égouttés','g égouttés'],'lasagnes':[6,'feuille','feuilles'],
+  'semoule':[140,'g','g'],'menthe':[8,'g','g'],'farine':[100,'g','g'],'petits pois':[120,'g','g'],
+  'safran':[1,'pincée','pincées'],'huile':[15,'ml','ml'],'sel':[3,'g','g'],'pois casses':[160,'g','g'],
+  'feuille de pate':[1,'rouleau','rouleaux'],'capres':[20,'g','g']
+};
+function recipeSteps(recipe){
+  const name=normalize(recipe.name);
+  const has=ingredient=>recipe.ingredients.some(item=>normalize(item)===ingredient);
+  if(name.includes('gaspacho'))return ['Lave et coupe les légumes en morceaux; retire les graines du concombre si tu préfères une soupe plus douce.','Mixe la tomate, le concombre, l’oignon, l’ail et un filet de citron jusqu’à obtenir une texture lisse.','Assaisonne puis laisse refroidir au réfrigérateur au moins 30 minutes avant de servir.'];
+  if((name.includes('nuggets')||name.includes('chips'))&&profile.appliances.includes('airFryer'))return ['Préchauffe l’air fryer à 180 °C et prépare les légumes selon la recette.','Dispose les morceaux en une seule couche dans le panier, sans le surcharger.','Fais cuire 12 à 18 minutes en secouant ou retournant à mi-cuisson; vérifie la cuisson et prolonge si nécessaire.'];
+  if((name.includes('soupe')||name.includes('veloute')||name.includes('potage'))&&profile.appliances.includes('microwave')&&!profile.appliances.includes('hob')&&!profile.appliances.includes('multiCooker'))return ['Coupe les légumes en petits morceaux et place-les dans un grand récipient adapté au micro-ondes avec le bouillon.','Couvre en laissant une ouverture et fais cuire par tranches de 5 minutes, en remuant, jusqu’à ce que les légumes soient tendres.','Mixe avec le mixeur, assaisonne et ajoute un peu de crème ou de lait si tu en as.'];
+  if((name.includes('omelette')||name.includes('frittata'))&&profile.appliances.includes('microwave')&&!profile.appliances.includes('hob'))return ['Bats les œufs dans un récipient adapté au micro-ondes et ajoute les légumes coupés finement et le fromage.','Couvre sans fermer hermétiquement et fais cuire 1 minute à puissance moyenne.','Remue puis poursuis par tranches de 30 secondes jusqu’à ce que les œufs soient pris à cœur.'];
+  if(name.includes('vapeur')&&profile.appliances.includes('microwave')&&!profile.appliances.includes('hob')&&!profile.appliances.includes('multiCooker'))return ['Coupe les légumes en morceaux réguliers et place-les dans un récipient adapté au micro-ondes avec 2 cuillères à soupe d’eau.','Couvre avec un couvercle adapté et fais cuire 4 minutes à puissance élevée.','Vérifie la tendreté puis prolonge par tranches d’une minute; ajoute le beurre et l’ail avant de servir.'];
+  if(name.includes('risotto'))return ['Fais revenir l’oignon et les champignons dans le beurre pendant 5 minutes.','Ajoute le riz et remue 1 minute, puis verse le bouillon chaud petit à petit en remuant souvent.','Laisse cuire environ 18 minutes, puis ajoute le fromage et sers crémeux.'];
+  if(name.includes('soupe')||name.includes('veloute')||name.includes('potage'))return ['Épluche et coupe les légumes en morceaux de taille similaire.','Fais revenir l’oignon 3 minutes, ajoute les légumes et le bouillon, puis couvre.','Laisse mijoter 20 à 25 minutes jusqu’à ce que les légumes soient tendres; mixe et ajuste l’assaisonnement.'];
+  if(name.includes('salade')||name.includes('bowl')||name.includes('poke')||name.includes('taboule'))return [has('riz')||has('quinoa')||has('semoule')||has('pates')?'Fais cuire la céréale ou les pâtes selon les indications du paquet, puis laisse tiédir.':'Lave et essore la salade; prépare les autres ingrédients.', 'Coupe les légumes et les garnitures en morceaux; fais cuire les œufs ou le poisson si nécessaire.','Répartis les ingrédients dans les assiettes et assaisonne avec citron, huile, sel et poivre.'];
+  if(name.includes('tortilla espagnole'))return ['Coupe les pommes de terre et l’oignon en fines tranches, puis fais-les cuire doucement à la poêle 15 minutes.','Bats les œufs, verse-les sur les pommes de terre et fais cuire à feu doux jusqu’à ce que la tortilla se tienne.','Retourne-la avec une assiette et cuis l’autre face 3 à 5 minutes.'];
+  if(name.includes('omelette')||name.includes('frittata'))return ['Bats les œufs avec le sel et le poivre; coupe les légumes et râpe le fromage.','Fais revenir les légumes à la poêle 5 à 8 minutes, puis verse les œufs battus.','Ajoute le fromage et cuis à feu doux jusqu’à ce que les œufs soient pris.'];
+  if(name.includes('crepe')||name.includes('pancake'))return ['Mélange la farine, les œufs et le lait jusqu’à obtenir une pâte lisse; incorpore les légumes râpés ou coupés finement.','Laisse reposer 5 minutes pendant que tu chauffes une poêle légèrement huilée.','Verse une petite louche de pâte et cuis chaque face 2 à 3 minutes; ajoute le fromage en fin de cuisson.'];
+  if(name.includes('curry'))return ['Fais revenir l’oignon, l’ail et le gingembre avec un filet d’huile pendant 2 minutes.','Ajoute les légumes coupés et fais-les dorer 5 minutes, puis verse le lait de coco et assaisonne.','Laisse mijoter 15 à 20 minutes jusqu’à ce que les légumes soient tendres; sers avec du riz si tu en as.'];
+  if(name.includes('paella'))return ['Fais revenir l’oignon, le poivron et la tomate dans une grande poêle avec un filet d’huile.','Ajoute le riz, le safran et le bouillon chaud; laisse cuire à feu doux sans trop remuer pendant 15 minutes.','Ajoute le poisson et les petits pois, puis poursuis la cuisson 5 à 8 minutes jusqu’à ce que le riz soit tendre.'];
+  if(name.includes('wrap')||name.includes('burrito')||name.includes('tacos'))return ['Fais cuire la garniture (légumes, haricots ou viande) à la poêle et assaisonne-la.','Réchauffe les tortillas quelques secondes dans une poêle sèche; répartis la garniture, la salade et le fromage au centre.','Replie les côtés puis roule les tortillas; sers aussitôt avec la tomate et l’avocat.'];
+  if(name.includes('toast avocat'))return ['Fais griller le pain jusqu’à ce qu’il soit doré et cuis l’œuf si tu en ajoutes un.','Écrase l’avocat avec un peu de citron, du sel et du poivre, puis étale-le sur le pain.','Ajoute la tomate, l’oignon et l’œuf; sers immédiatement.'];
+  if(name.includes('nuggets'))return ['Râpe les légumes et presse-les pour retirer un maximum d’eau.','Mélange-les avec l’œuf, la farine et le fromage, puis forme de petites galettes.','Fais dorer les nuggets dans une poêle huilée 4 à 5 minutes par face, jusqu’à ce qu’ils soient bien cuits.'];
+  if(name.includes('poelee'))return ['Coupe les pommes de terre en petits dés pour accélérer la cuisson et émince les autres légumes.','Fais dorer les pommes de terre dans une poêle huilée à feu moyen pendant 12 à 15 minutes en remuant régulièrement.','Ajoute les autres légumes et poursuis la cuisson 8 à 10 minutes; termine avec le fromage ou les herbes.'];
+  if(name.includes('pates')||name.includes('pasta'))return ['Fais cuire les pâtes dans une grande casserole d’eau bouillante salée selon le temps indiqué sur le paquet.','Pendant ce temps, fais revenir l’oignon et les légumes à la poêle avec un filet d’huile.','Égoutte les pâtes, mélange-les avec les légumes et le fromage; ajoute un peu d’eau de cuisson si nécessaire.'];
+  if(name.includes('lasagnes')||name.includes('gratin')||name.includes('moussaka')||name.includes('pizza'))return ['Préchauffe le four à 200 °C et coupe les légumes en tranches ou petits morceaux.','Dispose les ingrédients en couches dans un plat, ajoute le fromage et un filet d’huile.','Enfourne 25 à 35 minutes, jusqu’à ce que les légumes soient tendres et le dessus bien doré.'];
+  if(name.includes('vapeur'))return ['Coupe les légumes en morceaux réguliers et porte un fond d’eau à ébullition dans une casserole équipée d’un panier vapeur.','Fais cuire à couvert 8 à 12 minutes, en vérifiant la tendreté avec la pointe d’un couteau.','Ajoute le beurre, l’ail, le sel et le poivre juste avant de servir.'];
+  if(name.includes('chips'))return ['Préchauffe le four à 180 °C et coupe les légumes en tranches très fines.','Mélange-les avec un peu d’huile, du sel et du poivre, puis étale-les sans les superposer sur une plaque.','Enfourne 20 à 30 minutes en surveillant et en retournant à mi-cuisson; laisse refroidir pour les rendre croustillants.'];
+  if(name.includes('ratatouille')||name.includes('caponata')||name.includes('aubergine'))return ['Coupe les légumes en dés et fais revenir l’oignon et l’ail dans une grande poêle avec un filet d’huile.','Ajoute les légumes progressivement et fais-les dorer quelques minutes.','Ajoute la tomate, couvre et laisse mijoter 20 à 25 minutes; goûte et ajuste l’assaisonnement.'];
+  return ['Lave et coupe les ingrédients en morceaux de taille similaire; prépare l’assaisonnement.','Fais chauffer un filet d’huile dans une grande poêle et cuis d’abord les ingrédients les plus fermes, puis ajoute les plus tendres.','Remue régulièrement pendant 10 à 15 minutes, jusqu’à cuisson complète; ajuste le sel et le poivre avant de servir.'];
+}
+function renderRecipeDetails(recipe){
+  const rawServings=$('#recipeServings').value;
+  if(!rawServings)return;
+  const servings=Math.round(Math.max(1,Math.min(20,Number(rawServings)||2)));
+  $('#recipeServings').value=servings;
+  $('#recipeTitle').textContent=recipe.name;
+  const available=[],missing=[];
+  $('#recipeIngredients').innerHTML=recipe.ingredients.map(ingredient=>{
+    const [baseAmount,singular,plural]=recipeAmounts[normalize(ingredient)]||[100,'g','g'];
+    const amount=baseAmount*servings/2;
+    const amountLabel=Number(amount.toFixed(2)).toLocaleString('fr-FR',{maximumFractionDigits:2});
+    const present=items.some(item=>normalize(item.name).includes(normalize(ingredient)));
+    (present?available:missing).push(ingredient);
+    const sameAsIngredient=normalize(singular)===normalize(ingredient);
+    const quantity=sameAsIngredient?`${amountLabel} ${amount===1?singular:plural}`:`${amountLabel} ${amount===1?singular:plural} de ${esc(ingredient)}`;
+    return `<li class="${present?'':'missing'}">${quantity}${present?' · dans le frigo':' · à prévoir'}</li>`;
+  }).join('');
+  $('#recipeAvailability').textContent=missing.length?`${available.length} ingrédient${available.length!==1?'s':''} disponible${available.length!==1?'s':''} · à prévoir : ${missing.join(', ')}`:'Tous les ingrédients sont dans le frigo.';
+  $('#recipeSteps').innerHTML=recipeSteps(recipe).map(step=>`<li>${esc(step)}</li>`).join('');
+}
+let activeRecipe=null;
+function openRecipe(index){
+  const recipe=recipeCatalog[index];
+  if(!recipe)return;
+  activeRecipe=recipe;
+  $('#recipeServings').value=2;
+  renderRecipeDetails(recipe);
+  $('#recipeDialog').showModal();
+}
+function localDateKey(date=new Date()){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function mealDoneRecently(name){
+  const today=new Date();today.setHours(0,0,0,0);
+  return mealHistory.some(entry=>{
+    if(normalize(entry.name)!==normalize(name))return false;
+    const completed=new Date(entry.date+'T00:00:00');
+    const age=(today-completed)/864e5;
+    return age>=0&&age<7;
+  });
+}
+function recipeEquipmentOptions(recipe){
+  const name=normalize(recipe.name);
+  const has=ingredient=>recipe.ingredients.some(item=>normalize(item)===ingredient);
+  if(name.includes('gaspacho'))return [['blender']];
+  if(name.includes('salade')||name.includes('bowl')||name.includes('poke')||name.includes('taboule')){
+    if(has('pates'))return [['hob']];
+    if(has('riz')||has('quinoa'))return [['hob'],['riceCooker'],['multiCooker'],['microwave']];
+    if(has('semoule'))return [['hob'],['microwave']];
+    return [[]];
+  }
+  if(name.includes('toast avocat'))return [['hob'],['oven'],['toaster']];
+  if(name.includes('chips')||name.includes('nuggets'))return [['oven'],['airFryer']];
+  if(name.includes('lasagnes')||name.includes('gratin')||name.includes('moussaka')||name.includes('pizza'))return [['oven']];
+  if(name.includes('soupe')||name.includes('veloute')||name.includes('potage'))return [['hob'],['multiCooker'],['microwave','blender']];
+  if(name.includes('omelette')||name.includes('frittata'))return [['hob'],['microwave']];
+  if(name.includes('riz')&&!name.includes('risotto'))return [['hob'],['riceCooker'],['multiCooker'],['microwave']];
+  if(name.includes('vapeur'))return [['hob'],['multiCooker'],['microwave']];
+  if(name.includes('crepe')||name.includes('pancake')||name.includes('tortilla espagnole')||name.includes('wrap')||name.includes('burrito')||name.includes('tacos')||name.includes('paella')||name.includes('risotto')||name.includes('curry')||name.includes('pates')||name.includes('pasta')||name.includes('poelee')||name.includes('ratatouille')||name.includes('caponata')||name.includes('saute')||name.includes('stir fry')||name.includes('aubergine')||name.includes('galette')||name.includes('cassoulet'))return [['hob']];
+  return [['hob']];
+}
+const recipeEstimates={
+  'omelette aux legumes':[20,0],'salade de riz':[25,0],'soupe de legumes':[35,0],'pates au fromage':[20,0],
+  'wrap vegetarien':[15,0],'poelee de pommes de terre':[30,0],'salade verte':[10,0],'tacos maison':[25,0],
+  'veloute de carottes':[30,0],'pizza facile':[30,0],'ratatouille':[45,1],'curry de legumes':[35,1],
+  'bowl quinoa':[25,0],'gratin de courgettes':[40,1],'salade de pois chiches':[15,0],'pasta primavera':[25,0],
+  'gaspacho':[15,0],'frittata':[25,0],'crepes aux legumes':[30,1],'risotto aux champignons':[35,1],
+  'chips de legumes':[35,0],'mini burritos':[25,1],'moussaka legere':[55,1],'potage de pois casses':[50,1],
+  'salade nicoise':[25,1],'panang curry':[40,1],'saute de legumes':[20,0],'aubergines grillees':[30,0],
+  'galette aux epinards':[40,1],'toast avocat':[10,0],'poke bowl':[25,0],'cassoulet vegetal':[45,1],
+  'tortilla espagnole':[45,1],'lasagnes vegetales':[55,1],'salade de pates':[20,0],'taboule':[20,0],
+  'nuggets de legumes':[35,1],'paella rapide':[45,1],'pancakes sales':[25,0],'legumes vapeur au beurre':[20,0],
+  'stir fry de tofu':[25,0],'caponata':[45,1]
+};
+function recipeMetadata(recipe){
+  const [minutes,difficultyRank]=recipeEstimates[normalize(recipe.name)]||[30,0];
+  return {minutes,difficultyRank,difficulty:difficultyRank?'Intermédiaire':'Facile'};
+}
+function customApplianceIds(){
+  if(!profile.appliances.includes('other'))return [];
+  const name=normalize(profile.otherAppliance),ids=[];
+  if(/plancha|barbecue|gril|grill/.test(name))ids.push('hob');
+  if(/air fryer|friteuse sans huile/.test(name))ids.push('airFryer');
+  if(/grille pain|toaster/.test(name))ids.push('toaster');
+  if(/cuiseur a riz|rice cooker/.test(name))ids.push('riceCooker');
+  if(/multicuiseur|robot cuiseur|mijoteuse/.test(name))ids.push('multiCooker');
+  if(/micro onde/.test(name))ids.push('microwave');
+  if(/mixeur|blender/.test(name))ids.push('blender');
+  if(/four/.test(name))ids.push('oven');
+  if(/cuiseur vapeur|cuisson vapeur/.test(name))ids.push('steamer');
+  return ids;
+}
+function effectiveAppliances(){
+  return [...new Set([...profile.appliances.filter(value=>value!=='other'),...customApplianceIds()])];
+}
+function recipeFitsEquipment(recipe){
+  const available=effectiveAppliances();
+  if(!available.length)return true;
+  return recipeEquipmentOptions(recipe).some(option=>option.every(appliance=>available.includes(appliance)));
+}
+function renderProfile(){
+  document.querySelectorAll('#applianceGrid input').forEach(input=>{input.checked=profile.appliances.includes(input.value)});
+  $('#otherAppliance').value=profile.otherAppliance;
+  $('#otherApplianceWrap').hidden=!profile.appliances.includes('other');
+  const known=effectiveAppliances().length;
+  $('#profileStatus').textContent=!profile.appliances.length?'Aucun filtre équipement : toutes les recettes restent proposées.':!known?'Appareil enregistré; ajoute un nom reconnu pour filtrer les idées, sinon les recettes restent générales.':`${known} équipement${known===1?'':'s'} pris en compte pour filtrer les recettes.`;
+}
+function markMealDone(index){
+  const recipe=recipeCatalog[index];
+  if(!recipe||mealDoneRecently(recipe.name))return;
+  mealHistory.push({name:recipe.name,date:localDateKey()});
+  if(sess)cloud.addMeal(recipe.name).catch(()=>{});
+  save();renderSuggestions();
+  msg(`« ${recipe.name} » noté comme fait. Il ne sera pas reproposé pendant 7 jours.`);
+}
+function renderSuggestions(){
+  const suggestionsEl=$('#suggestions');
+  if(!criteriaApplied){suggestionsEl.hidden=true;return}
+  const fridgeNames=items.map(i=>normalize(i.name));
+  const allMatches=recipeCatalog.map((recipe,index)=>{
+    const matchSet=new Set();
+    recipe.ingredients.forEach(ing=>{
+      const normalizedIngredient=normalize(ing);
+      if(fridgeNames.some(name=>name.includes(normalizedIngredient))) matchSet.add(ing);
+    });
+    return {recipe,index,matches:[...matchSet],score:matchSet.size,...recipeMetadata(recipe)};
+  }).filter(entry=>entry.score>0&&recipeFitsEquipment(entry.recipe)).sort((a,b)=>b.score-a.score);
+  const byCriteria=allMatches.filter(entry=>(recipeCriteria.maxMinutes===null||entry.minutes<=recipeCriteria.maxMinutes)&&(recipeCriteria.difficulty==='any'||entry.difficultyRank<= (recipeCriteria.difficulty==='easy'?0:1)));
+  const matches=byCriteria.filter(entry=>!mealDoneRecently(entry.recipe.name)).sort((a,b)=>a.difficultyRank-b.difficultyRank||a.minutes-b.minutes||b.score-a.score).slice(0,6);
+
+  suggestionsEl.hidden=false;
+  if(!matches.length){
+    $('#criteriaStatus').textContent='Aucun repas à afficher avec ces critères.';
+    suggestionsEl.innerHTML=byCriteria.length?'<p>Toutes ces idées ont été préparées récemment. Essaie d’autres critères ou ajoute des ingrédients pour varier les repas.</p>':allMatches.length?'<p>Aucun plat ne respecte ces critères de temps et de difficulté. Élargis tes choix pour voir plus d’idées.</p>':items.length?'<p>Aucun repas ne correspond à la fois aux ingrédients et aux appareils sélectionnés. Modifie ton profil ou ajoute des ingrédients.</p>':'<p>Ajoute quelques ingrédients pour voir des idées de repas.</p>';
+    return;
+  }
+
+  $('#criteriaStatus').textContent=`${matches.length} idée${matches.length===1?'':'s'} affichée${matches.length===1?'':'s'}, des plus simples et rapides.`;
+  suggestionsEl.innerHTML=matches.map(({recipe,index,matches,minutes,difficulty})=>`<div class="suggestion-card"><h4>${esc(recipe.name)}</h4><p class="suggestion-meta">${minutes} min · ${difficulty}</p><p>${matches.map(m=>esc(m)).join(', ')}</p><span class="match">${matches.length} ingrédient${matches.length>1?'s':''} dans le frigo</span><div class="suggestion-actions"><button type="button" data-recipe="${index}">Voir la recette</button><button type="button" class="meal-done" data-done-recipe="${index}">Marquer fait</button></div></div>`).join('');
+}
+function parseIsoDate(raw){
+  const s=String(raw||'').trim();
+  if(!s) return null;
+  const m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if(m){const y=Number(m[1]),mo=Number(m[2]),d=Number(m[3]); const date=new Date(y,mo-1,d); if(date.getFullYear()===y&&date.getMonth()===mo-1&&date.getDate()===d){return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}}
+  const a=s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/);
+  if(a){const d=Number(a[1]),mo=Number(a[2]),y=Number(a[3]); const yy=y<100?(y<50?2000+y:1900+y):y; const date=new Date(yy,mo-1,d); if(date.getFullYear()===yy&&date.getMonth()===mo-1&&date.getDate()===d){return `${yy}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}}
+  return null;
+}
+function extractBestDate(text){
+  const raw=(text||'').replace(/\s+/g,' ');
+  const seen=new Set();
+  const list=[];
+  const add=(rawDate,priority=false)=>{const iso=parseIsoDate(rawDate);if(iso&&!seen.has(iso)){seen.add(iso);list.push({iso,raw:rawDate,priority})}};
+  const labeled=/(?:DLC|DLUO|EXP(?:IR(?:Y|ATION)?)?|USE BY|BEST BEFORE|DATE DE PEREMPTION|DATE LIMITE|DATE LIMIT|MDD|PEREMPTION)[^0-9]{0,16}(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/gi;
+  for(const match of raw.matchAll(labeled))add(match[1],true);
+  const general=/(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}|\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2})/g;
+  for(const match of raw.matchAll(general))add(match[1]);
+  const monthYear=/\b(\d{1,2})\s*\/\s*(\d{2,4})\b|\b(\d{4})\s*\/\s*(\d{1,2})\b/g;
+  for(const match of raw.matchAll(monthYear)){
+    const month=Number(match[1]||match[4]);
+    const year=Number(match[2]||match[3]);
+    const fullYear=year<100?(year<50?2000+year:1900+year):year;
+    if(month>=1&&month<=12&&fullYear>=2000&&fullYear<=2100){
+      const lastDay=new Date(fullYear,month,0).getDate();
+      add(`${fullYear}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`);
+    }
+  }
+  if(!list.length) return null;
+  list.sort((a,b)=>Number(b.priority)-Number(a.priority)||new Date(a.iso)-new Date(b.iso));
+  const future=list.filter(x=>new Date(x.iso) > new Date(Date.now()-86400000*30));
+  return (future[0]||list[0]).iso;
+}
+let dateTimer=null,dateBusy=false,dateHold=false,dateWorker=null,dateWorkerPromise=null,dateScanRun=0;
+let groceryScanItems=[];
+async function getDateWorker(){
+  if(dateWorker)return dateWorker;
+  if(!dateWorkerPromise)dateWorkerPromise=Tesseract.createWorker('fra+eng').catch(error=>{dateWorkerPromise=null;throw error});
+  dateWorker=await dateWorkerPromise;
+  return dateWorker;
+}
+async function readDateFromCamera(runId=dateScanRun){
+  if(!window.Tesseract){msg('Le moteur OCR n’est pas chargé. Recharge la page et réessaie.');return}
+  if(!stream||$('#dateScanControls').hidden){
+    await openCameraForDate();
+    return;
+  }
+  if(dateBusy||dateHold||runId!==dateScanRun)return;
+  const v=$('#cam');
+  if(!v || !v.videoWidth || !v.videoHeight)return;
+  const button=$('#readDateAgain');
+  dateBusy=true;
+  button.disabled=true;
+  try{
+    if(!dateWorker)msg('Préparation de la lecture automatique…');
+    const worker=await getDateWorker();
+    if(runId!==dateScanRun||!stream)return;
+    const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+    const scale=Math.min(2,1800/Math.max(v.videoWidth,1));
+    canvas.width=Math.round(v.videoWidth*scale);canvas.height=Math.round(v.videoHeight*scale);
+    ctx.drawImage(v,0,0,canvas.width,canvas.height);
+    const candidates=[canvas];
+    const crop=document.createElement('canvas'),cropCtx=crop.getContext('2d');
+    crop.width=Math.round(canvas.width*.8);crop.height=Math.round(canvas.height*.55);
+    cropCtx.filter='grayscale(1) contrast(1.8) brightness(1.15)';
+    cropCtx.drawImage(canvas,Math.round(canvas.width*.1),Math.round(canvas.height*.225),crop.width,crop.height,0,0,crop.width,crop.height);
+    candidates.push(crop);
+    let iso=null;
+    for(const image of candidates){
+      const result=await worker.recognize(image);
+      iso=extractBestDate(result.data&&result.data.text?result.data.text:'');
+      if(iso)break;
+    }
+    if(runId!==dateScanRun||!stream)return;
+    if(!iso){
+      msg('Recherche automatique… centre la date dans le rectangle et garde le téléphone stable.');
+      return;
+    }
+    $('#date').value=iso;
+    dateHold=true;
+    frame(true);beep();if(navigator.vibrate)navigator.vibrate(60);
+    msg('Date détectée automatiquement : '+iso+'.');
+    setTimeout(closeDateCamera,500);
+  }catch(e){
+    if(runId===dateScanRun)msg('Lecture OCR indisponible. Vérifie ta connexion internet et réessaie.');
+  }finally{
+    dateBusy=false;
+    button.disabled=false;
+  }
+}
+async function scanDateLoop(runId){
+  if(runId!==dateScanRun||!stream||dateHold)return;
+  await readDateFromCamera(runId);
+  if(runId===dateScanRun&&stream&&!dateHold)dateTimer=setTimeout(()=>scanDateLoop(runId),450);
+}
+function parseGroceryList(text){
+  const ignored=/^(liste(?: de courses?)?|courses?|liste|a acheter|a ne pas oublier|produits?|ingredients?|total|sous.total|merci|date|magasin)\s*[:\-]*$/i;
+  const seen=new Set();
+  return String(text||'').split(/\r?\n/).map(line=>line.trim()
+    .replace(/^(?:\[[ xX✓✔]?\]|[•·▪◦*\-–—]|\d{1,2}[.)])\s*/,'')
+    .replace(/\s+/g,' ')
+    .replace(/^[|:;,.]+|[|:;,.]+$/g,'')
+    .trim())
+    .filter(line=>line.length>1&&line.length<=80&&!ignored.test(normalize(line))&&/[a-zA-ZÀ-ÿ]/.test(line))
+    .filter(line=>{const key=normalize(line);if(seen.has(key))return false;seen.add(key);return true;});
+}
+async function loadGroceryImage(file){
+  if(window.createImageBitmap)return createImageBitmap(file,{imageOrientation:'from-image'});
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file),image=new Image();
+    image.onload=()=>{URL.revokeObjectURL(url);resolve(image)};
+    image.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('image-load'))};
+    image.src=url;
+  });
+}
+function prepareGroceryImages(image){
+  const width=image.width||image.naturalWidth,height=image.height||image.naturalHeight,longest=Math.max(width,height);
+  const scale=longest<1800?Math.min(2,1800/longest):Math.min(1,2800/longest);
+  const original=document.createElement('canvas');
+  original.width=Math.max(1,Math.round(width*scale));original.height=Math.max(1,Math.round(height*scale));
+  const originalContext=original.getContext('2d',{willReadFrequently:true});
+  originalContext.imageSmoothingEnabled=true;originalContext.imageSmoothingQuality='high';
+  originalContext.drawImage(image,0,0,original.width,original.height);
+
+  const contrast=document.createElement('canvas');contrast.width=original.width;contrast.height=original.height;
+  const contrastContext=contrast.getContext('2d',{willReadFrequently:true});
+  contrastContext.filter='grayscale(1) contrast(1.45) brightness(1.08)';
+  contrastContext.drawImage(original,0,0);
+
+  const thresholded=document.createElement('canvas');thresholded.width=contrast.width;thresholded.height=contrast.height;
+  const thresholdContext=thresholded.getContext('2d',{willReadFrequently:true});
+  const pixels=contrastContext.getImageData(0,0,contrast.width,contrast.height),histogram=new Uint32Array(256);
+  for(let i=0;i<pixels.data.length;i+=4){const gray=Math.round(.299*pixels.data[i]+.587*pixels.data[i+1]+.114*pixels.data[i+2]);histogram[gray]++}
+  const total=contrast.width*contrast.height;let sum=0;
+  for(let i=0;i<256;i++)sum+=i*histogram[i];
+  let backgroundSum=0,backgroundWeight=0,bestVariance=0,threshold=128;
+  for(let i=0;i<256;i++){
+    backgroundWeight+=histogram[i];if(!backgroundWeight)continue;
+    const foregroundWeight=total-backgroundWeight;if(!foregroundWeight)break;
+    backgroundSum+=i*histogram[i];
+    const meanBackground=backgroundSum/backgroundWeight,meanForeground=(sum-backgroundSum)/foregroundWeight;
+    const variance=backgroundWeight*foregroundWeight*(meanBackground-meanForeground)**2;
+    if(variance>bestVariance){bestVariance=variance;threshold=i;}
+  }
+  for(let i=0;i<pixels.data.length;i+=4){
+    const gray=.299*pixels.data[i]+.587*pixels.data[i+1]+.114*pixels.data[i+2],value=gray>=threshold?255:0;
+    pixels.data[i]=value;pixels.data[i+1]=value;pixels.data[i+2]=value;pixels.data[i+3]=255;
+  }
+  thresholdContext.putImageData(pixels,0,0);
+  return{original,contrast,thresholded};
+}
+function renderGroceryItems(){
+  $('#groceryItems').innerHTML=groceryScanItems.map((name,index)=>`<div class="grocery-row"><input type="checkbox" data-grocery-select="${index}" checked aria-label="Ajouter ${esc(name)}"><input type="text" data-grocery-name="${index}" value="${esc(name)}" aria-label="Nom du produit ${index+1}"><input type="date" data-grocery-date="${index}" aria-label="Date de péremption pour ${esc(name)}"></div>`).join('');
+  $('#addGroceries').disabled=!groceryScanItems.length;
+}
+async function scanGroceryPhoto(file){
+  if(!file)return;
+  if(!window.Tesseract){msg('Le lecteur de texte n’a pas pu se charger. Vérifie ta connexion et réessaie.');return}
+  groceryScanItems=[];
+  renderGroceryItems();
+  $('#groceryStatus').textContent='Lecture de la liste…';
+  if(!$('#groceryDialog').open)$('#groceryDialog').showModal();
+  try{
+    const worker=await getDateWorker();
+    $('#groceryStatus').textContent='Amélioration de la photo…';
+    const image=await loadGroceryImage(file),variants=prepareGroceryImages(image);
+    if(image.close)image.close();
+    const passes=[
+      {image:variants.original,mode:Tesseract.PSM.AUTO},
+      {image:variants.original,mode:Tesseract.PSM.SPARSE_TEXT},
+      {image:variants.contrast,mode:Tesseract.PSM.SINGLE_BLOCK},
+      {image:variants.thresholded,mode:Tesseract.PSM.SPARSE_TEXT}
+    ];
+    const candidates=new Map();
+    try{
+      for(let index=0;index<passes.length;index++){
+        $('#groceryStatus').textContent=`Lecture haute précision ${index+1}/${passes.length}…`;
+        await worker.setParameters({tessedit_pageseg_mode:passes[index].mode});
+        const result=await worker.recognize(passes[index].image);
+        const confidence=Number(result.data&&result.data.confidence)||0;
+        parseGroceryList(result.data&&result.data.text?result.data.text:'').forEach(name=>{
+          const key=normalize(name),existing=candidates.get(key);
+          if(existing){existing.count++;if(confidence>existing.confidence){existing.name=name;existing.confidence=confidence;}}
+          else candidates.set(key,{name,count:1,confidence});
+        });
+      }
+    }finally{
+      await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.AUTO});
+    }
+    groceryScanItems=[...candidates.values()].sort((a,b)=>b.count-a.count||b.confidence-a.confidence).map(candidate=>candidate.name);
+    renderGroceryItems();
+    $('#groceryStatus').textContent=groceryScanItems.length?`${groceryScanItems.length} produit${groceryScanItems.length===1?'':'s'} candidat${groceryScanItems.length===1?'':'s'} détecté${groceryScanItems.length===1?'':'s'} en croisant 4 lectures. Vérifie chaque nom et chaque date.`:'Aucun produit détecté. Essaie une photo plus nette, bien éclairée, sans ombre et cadrée sur toute la liste.';
+  }catch(error){
+    $('#groceryStatus').textContent='La lecture a échoué. Vérifie la connexion internet et réessaie avec une photo plus nette.';
+  }
+}
+async function addGroceryItems(){
+  const selected=[...document.querySelectorAll('#groceryItems .grocery-row')].filter(row=>row.querySelector('[data-grocery-select]').checked).map(row=>({name:row.querySelector('[data-grocery-name]').value.trim(),date:row.querySelector('[data-grocery-date]').value})).filter(item=>item.name);
+  if(!selected.length){$('#groceryStatus').textContent='Coche au moins un produit à ajouter.';return}
+  const created=selected.map((item,index)=>({id:Date.now()+index,code:'',name:item.name,date:item.date}));
+  if(sess){
+    try{await cloud.addItems(created)}
+    catch(error){$('#groceryStatus').textContent='La synchronisation a échoué. Réessaie avant de fermer la liste.';return}
+  }
+  items.push(...created);save();render();$('#groceryDialog').close();
+  msg(`${created.length} produit${created.length===1?'':'s'} ajouté${created.length===1?'':'s'} au frigo.`);
+}
+async function openCameraForDate(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){msg('Caméra indisponible ici. Utilise le formulaire pour saisi la date à la main.');return}
+  if(stream){stop();}
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}
+  msg('Positionne la date de péremption dans le cadre…');
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
+  }catch(e){
+    stream=null;
+    msg('Caméra inaccessible. Vérifie l’autorisation de la caméra puis réessaie.');
+    return;
+  }
+  const v=$('#cam');
+  v.srcObject=stream;
+  $('#camwrap').hidden=false;
+  $('#dateScanControls').hidden=false;
+  $('#scan').textContent='Arrêter la caméra';
+  try{await v.play()}catch(e){}
+  try{stream.getVideoTracks()[0].applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{})}catch(e){}
+  const runId=++dateScanRun;
+  frame(false);
+  msg('Recherche automatique : place la date dans le rectangle.');
+  scanDateLoop(runId);
+}
+function closeDateCamera(){
+  stop();
+  $('#dateScanControls').hidden=true;
+}
+function days(iso){const [y,m,d]=iso.split('-').map(Number);const t=new Date();const a=new Date(y,m-1,d),b=new Date(t.getFullYear(),t.getMonth(),t.getDate());return Math.round((a-b)/864e5)}
+function fmt(iso){return new Date(iso+'T00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}
+function shoppingData(){const data={};shoppingList.forEach(item=>data[item.id]=item);return data}
+async function persistShopping(){
+  save();
+  if(!sess)return true;
+  try{await cloud.syncShopping();return true}catch(error){return false}
+}
+function addShoppingCandidate(name){
+  if(shoppingList.some(item=>normalize(item.name)===normalize(name)))return false;
+  shoppingList.push({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,7),name:name.trim(),price:'',checked:false});
+  renderShoppingList();
+  return true;
+}
+function renderShoppingSummary(){
+  const checked=shoppingList.filter(item=>item.checked);
+  const priced=checked.filter(item=>item.price!==''&&Number.isFinite(Number(item.price))&&Number(item.price)>=0);
+  const total=priced.reduce((sum,item)=>sum+Number(item.price),0);
+  $('#shoppingTotal').textContent=new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(total);
+  const missing=checked.length-priced.length;
+  $('#shoppingSummaryText').textContent=!checked.length?'Coche des articles et renseigne leur prix.':missing?`${priced.length} prix compté${priced.length===1?'':'s'} · ${missing} prix à renseigner.`:`${checked.length} article${checked.length===1?'':'s'} coché${checked.length===1?'':'s'} pris en compte.`;
+}
+function renderShoppingList(){
+  $('#shoppingItems').innerHTML=shoppingList.map(item=>`<li class="shopping-entry"><input type="checkbox" data-shopping-check="${esc(item.id)}" ${item.checked?'checked':''} aria-label="Inclure ${esc(item.name)} dans le total"><span class="shopping-entry-name">${esc(item.name)}</span><label class="shopping-price"><input type="number" data-shopping-price="${esc(item.id)}" min="0" step="0.01" value="${esc(item.price)}" placeholder="0,00" aria-label="Prix estimé pour ${esc(item.name)}"><span>€</span></label><button type="button" data-shopping-remove="${esc(item.id)}" aria-label="Retirer ${esc(item.name)}">Retirer</button></li>`).join('');
+  $('#shoppingEmpty').hidden=shoppingList.length>0;
+  $('#shoppingTabCount').textContent=shoppingList.length?String(shoppingList.length):'';
+  $('#shoppingTabCount').hidden=!shoppingList.length;
+  renderShoppingSummary();
+}
+function render(){
+  items.sort((a,b)=>{const aDate=String(a.date||''),bDate=String(b.date||'');if(!aDate)return bDate?1:0;if(!bDate)return -1;return aDate.localeCompare(bDate)});
+  const urgent=items.filter(i=>i.date&&days(i.date)<=2).length;
+  const undated=items.filter(i=>!i.date).length;
+  $('#cnt').textContent=items.length+' produit'+(items.length>1?'s':'');
+  $('#sum').textContent=urgent?urgent+' produit'+(urgent>1?'s':'')+' à consommer très vite.':undated?undated+' produit'+(undated>1?'s':'')+' sans date de péremption.':(items.length?'Rien d’urgent pour l’instant.':'Scanne un produit, note sa date, on s’occupe du reste.');
+  $('#list').innerHTML=items.length?items.map(i=>{
+    const hasDate=/^\d{4}-\d{2}-\d{2}$/.test(String(i.date||'')),n=hasDate?days(i.date):null,cls=!hasDate?'':n<=2?'bad':n<=5?'warn':'';
+    const big=!hasDate?'—':n<0?'−'+Math.abs(n):n,small=!hasDate?'sans date':n<0?'jour'+(Math.abs(n)>1?'s':'')+' de retard':n===0?'aujourd’hui':n===1?'jour':'jours';
+    const dateLabel=hasDate?fmt(i.date):'Date non renseignée';
+    return `<li class="${cls}"><div class="d"><b>${big}</b><small>${small}</small></div><div><div class="n">${esc(i.name)}</div><div class="dt">${dateLabel}${sess&&i.by&&members[i.by]?' · ajouté par '+esc(members[i.by].name):''}</div><div class="act"><button data-a="eat" data-id="${i.id}">Consommé</button><button data-a="out" data-id="${i.id}">Jeté</button>${hasDate?`<button data-a="ics" data-id="${i.id}">Rappel</button>`:''}</div></div></li>`}).join('')
+    :'<li class="empty" style="display:block;border-left:1px dashed var(--line)">Le frigo est vide. Ajoute ton premier produit ci-dessus.</li>';
+  const t=hist.eaten+hist.thrown;
+  $('#stats').textContent=t?hist.eaten+' consommé'+(hist.eaten>1?'s':'')+', '+hist.thrown+' jeté'+(hist.thrown>1?'s':'')+' ('+Math.round(hist.eaten/t*100)+' % sauvés)':'';
+  renderSuggestions();
+}
+async function lookup(code){
+  if(names[code]){$('#name').value=names[code];msg('Produit reconnu : touche la durée (+5 j…) pour l’ajouter.');return}
+  msg('Recherche du produit…');
+  try{
+    const c=new AbortController();setTimeout(()=>c.abort(),5000);
+    const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands',{signal:c.signal});
+    const j=await r.json();const p=j.product;
+    if(p&&p.product_name){$('#name').value=p.product_name+(p.brands?' – '+p.brands.split(',')[0]:'');msg('Produit trouvé : touche la durée (+5 j…) pour l’ajouter.');return}
+    msg('Produit introuvable : saisis son nom, puis touche la durée.');
+  }catch(e){msg('Recherche en ligne indisponible : saisis le nom, il sera retenu pour la prochaine fois.')}
+}
+let hold=false,busy=false,mfr=null,hints=null,t0=0,fromScan=false,lookupP=null;
+const cv=document.createElement('canvas');
+function stop(){hold=false;busy=false;dateHold=false;dateScanRun++;clearInterval(timer);clearTimeout(dateTimer);timer=null;dateTimer=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$('#cam').srcObject=null;$('#camwrap').hidden=true;$('#dateScanControls').hidden=true;$('#scan').textContent='Scanner un code-barres'}
+function ctx(){const c=$('#ov'),v=$('#cam');c.width=v.clientWidth;c.height=v.clientHeight;return c.getContext('2d')}
+function frame(ok){
+  const g=ctx(),w=g.canvas.width,h=g.canvas.height,bw=w*.82,bh=h*.42,x=(w-bw)/2,y=(h-bh)/2;
+  g.clearRect(0,0,w,h);g.setLineDash(ok?[]:[10,8]);g.lineWidth=ok?6:3;
+  g.strokeStyle=ok?'#2ecc71':'rgba(255,255,255,.9)';g.fillStyle='rgba(46,204,113,.2)';
+  g.beginPath();if(g.roundRect)g.roundRect(x,y,bw,bh,14);else g.rect(x,y,bw,bh);if(ok)g.fill();g.stroke();
+}
+function idle(){if(!hold)frame(false)}
+function crop(){
+  const v=$('#cam'),vw=v.videoWidth,vh=v.videoHeight,bw=v.clientWidth,bh=v.clientHeight;
+  if(!vw||!vh||!bw)return null;
+  const k=Math.max(bw/vw,bh/vh),ox=(bw-vw*k)/2,oy=(bh-vh*k)/2;
+  const sx=Math.max(0,(bw*.09-ox)/k),sy=Math.max(0,(bh*.29-oy)/k);
+  return{sx,sy,sw:Math.min(vw-sx,bw*.82/k),sh:Math.min(vh-sy,bh*.42/k)};
+}
+let actx=null;
+function beep(){
+  try{if(!actx)return;const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
+    o.type='square';o.frequency.value=1800;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.3,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.2);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.22)}catch(e){}
+}
+function found(code){
+  hold=true;frame(true);beep();if(navigator.vibrate)navigator.vibrate(60);msg('Code lu : '+code);
+  setTimeout(()=>{stop();$('#code').value=code;fromScan=true;lookupP=lookup(code).finally(()=>{lookupP=null});$('.chips').scrollIntoView({behavior:'smooth',block:'center'})},300);
+}
+function tick(){
+  if(hold||busy)return;
+  const v=$('#cam');if(v.readyState<2)return;
+  const r=crop();if(!r||r.sw<20||r.sh<20)return;
+  busy=true;
+  try{
+    const sc=Math.min(1,1600/r.sw);cv.width=Math.round(r.sw*sc);cv.height=Math.round(r.sh*sc);
+    cv.getContext('2d',{willReadFrequently:true}).drawImage(v,r.sx,r.sy,r.sw,r.sh,0,0,cv.width,cv.height);
+    const src=new ZXing.HTMLCanvasElementLuminanceSource(cv);
+    let res=null;
+    for(const B of [ZXing.HybridBinarizer,ZXing.GlobalHistogramBinarizer]){
+      try{res=mfr.decode(new ZXing.BinaryBitmap(new B(src)),hints);break}catch(e){}
+    }
+    if(res)found(res.getText());
+    else if(Date.now()-t0>7000)msg('Rien lu. Éloigne un peu le téléphone (15 à 20 cm), évite les reflets et garde le code bien droit dans le cadre.');
+  }catch(e){}
+  busy=false;
+}
+async function scan(){
+  if(timer||stream){stop();msg('');return}
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}
+  if(!window.ZXing){msg('Le lecteur de codes-barres n’a pas pu se charger. Vérifie ta connexion ou saisis le code à la main.');return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg('Caméra indisponible ici. Ouvre l’appli depuis son adresse https dans Safari.');return}
+  msg('Ouverture de la caméra…');
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})}
+  catch(e){stream=null;msg(e&&e.name==='NotAllowedError'?'Accès à la caméra refusé. Va dans Réglages > Safari > Caméra, choisis Autoriser (ou Demander), puis réessaie.':'Caméra inaccessible ('+((e&&e.name)||'erreur')+'). Ferme les autres applis qui l’utilisent et réessaie.');return}
+  try{stream.getVideoTracks()[0].applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{})}catch(e){}
+  const v=$('#cam');v.setAttribute('playsinline','');v.muted=true;v.srcObject=stream;
+  $('#camwrap').hidden=false;$('#scan').textContent='Arrêter la caméra';
+  try{await v.play()}catch(e){}
+  const F=ZXing.BarcodeFormat;
+  hints=new Map();hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E]);hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+  mfr=new ZXing.MultiFormatReader();
+  hold=false;busy=false;t0=Date.now();
+  idle();setTimeout(idle,400);
+  msg('Place le code-barres dans le cadre : il devient vert quand il est bien placé.');
+  timer=setInterval(tick,130);
+}
+async function add(){
+  const name=$('#name').value.trim(),date=$('#date').value,code=$('#code').value.trim();
+  if(!name){msg('Indique le nom du produit.');return}
+  if(!date){msg('Choisis la date de péremption.');return}
+  const it={id:Date.now(),code,name,date};
+  if(sess){try{await cloud.addItems([it]);if(code)cloud.setName(code,name).catch(()=>{})}catch(err){msg('Pas de connexion : produit non ajouté. Réessaie.');return}}
+  items.push(it);
+  if(code)names[code]=name;
+  save();render();
+  ['#code','#name','#date'].forEach(s=>$(s).value='');
+  msg('« '+name+' » ajouté.');
+  if(fromScan&&$('#chain').checked){fromScan=false;setTimeout(scan,250)}else fromScan=false;
+}
+document.querySelectorAll('.chips button').forEach(b=>b.onclick=async()=>{
+  const d=new Date();d.setDate(d.getDate()+Number(b.dataset.d));
+  $('#date').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  if(lookupP)await lookupP;
+  if($('#name').value.trim())add();
+  else{msg('Date choisie. Indique le nom du produit, puis touche « Ajouter au frigo ».');$('#name').focus()}
+});
+$('#scan').onclick=scan;$('#add').onclick=add;
+$('#scanGrocery').onclick=()=>{if(stream||timer)stop();$('#groceryPhoto').click()};
+$('#groceryPhoto').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];e.target.value='';if(file)scanGroceryPhoto(file)});
+$('#groceryItems').addEventListener('input',e=>{if(e.target.matches('[data-grocery-name]'))groceryScanItems[Number(e.target.dataset.groceryName)]=e.target.value});
+$('#groceryItems').addEventListener('change',e=>{if(e.target.matches('[data-grocery-select]'))$('#addGroceries').disabled=!document.querySelector('#groceryItems [data-grocery-select]:checked')});
+$('#addGroceries').onclick=addGroceryItems;
+$('#closeGrocery').onclick=()=>$('#groceryDialog').close();
+$('#rescanGroceries').onclick=()=>{$('#groceryDialog').close();$('#groceryPhoto').click()};
+$('#scanDate').onclick=readDateFromCamera;
+$('#readDateAgain').onclick=readDateFromCamera;
+$('#closeDateCamera').onclick=closeDateCamera;
+$('#suggestions').addEventListener('click',e=>{const doneButton=e.target.closest('button[data-done-recipe]');if(doneButton){markMealDone(Number(doneButton.dataset.doneRecipe));return}const recipeButton=e.target.closest('button[data-recipe]');if(recipeButton)openRecipe(Number(recipeButton.dataset.recipe))});
+$('#recipeServings').addEventListener('input',()=>{if(activeRecipe)renderRecipeDetails(activeRecipe)});
+$('#closeRecipe').onclick=()=>$('#recipeDialog').close();
+document.querySelectorAll('.tab').forEach(button=>button.addEventListener('click',()=>{
+  const selected=button.dataset.tab;
+  $('#fridgeTab').hidden=selected!=='fridge';
+  $('#profileTab').hidden=selected!=='profile';
+  $('#shoppingTab').hidden=selected!=='shopping';
+  document.querySelectorAll('.tab').forEach(tab=>tab.setAttribute('aria-selected',String(tab===button)));
+}));
+$('#applianceGrid').addEventListener('change',e=>{
+  if(!e.target.matches('input[type="checkbox"]'))return;
+  profile.appliances=[...document.querySelectorAll('#applianceGrid input:checked')].map(input=>input.value);
+  save();renderProfile();renderSuggestions();cloudSaveProfile();
+});
+function updateCriteriaButton(){
+  $('#applyRecipeCriteria').disabled=!$('#recipeTime').value||!$('#recipeDifficulty').value;
+}
+['#recipeTime','#recipeDifficulty'].forEach(selector=>$(selector).addEventListener('change',()=>{
+  criteriaApplied=false;
+  $('#suggestions').hidden=true;
+  $('#criteriaStatus').textContent='Critères modifiés : valide-les pour afficher les repas.';
+  updateCriteriaButton();
+}));
+$('#applyRecipeCriteria').onclick=()=>{
+  const time=$('#recipeTime').value,difficulty=$('#recipeDifficulty').value;
+  if(!time||!difficulty)return;
+  recipeCriteria={maxMinutes:time==='any'?null:Number(time),difficulty};
+  criteriaApplied=true;
+  renderSuggestions();
+};
+$('#otherAppliance').addEventListener('input',e=>{
+  profile.otherAppliance=e.target.value.slice(0,60);
+  save();renderSuggestions();renderProfile();cloudSaveProfileSoon();
+});
+$('#shoppingAddForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const input=$('#shoppingName'),name=input.value.trim();
+  if(!name)return;
+  if(!addShoppingCandidate(name)){msg('Cet article est déjà dans la liste.');input.focus();return}
+  input.value='';
+  if(!await persistShopping())msg('Article gardé sur cet appareil, mais synchronisation indisponible.');
+});
+$('#shoppingItems').addEventListener('input',e=>{
+  const id=e.target.dataset.shoppingPrice;if(!id)return;
+  const item=shoppingList.find(entry=>entry.id===id);if(!item)return;
+  item.price=e.target.value;renderShoppingSummary();
+});
+$('#shoppingItems').addEventListener('change',async e=>{
+  const id=e.target.dataset.shoppingCheck||e.target.dataset.shoppingPrice;if(!id)return;
+  const item=shoppingList.find(entry=>entry.id===id);if(!item)return;
+  if(e.target.matches('[data-shopping-check]'))item.checked=e.target.checked;
+  if(!await persistShopping())msg('Modification gardée sur cet appareil, mais synchronisation indisponible.');
+  renderShoppingSummary();
+});
+$('#shoppingItems').addEventListener('click',async e=>{
+  const button=e.target.closest('button[data-shopping-remove]');if(!button)return;
+  shoppingDeleted.add(button.dataset.shoppingRemove);
+  shoppingList=shoppingList.filter(item=>item.id!==button.dataset.shoppingRemove);
+  renderShoppingList();
+  if(!await persistShopping())msg('Modification gardée sur cet appareil, mais synchronisation indisponible.');
+});
+$('#code').addEventListener('change',e=>{const c=e.target.value.trim();if(c)lookup(c)});
+$('#list').addEventListener('click',async e=>{
+  const b=e.target.closest('button[data-a]');if(!b)return;
+  const id=Number(b.dataset.id);if(b.dataset.a==='ics'){rappel(items.find(i=>i.id===id));return}const kind=b.dataset.a==='eat'?'eat':'out';
+  if(sess){try{await cloud.removeItem(id,kind)}catch(err){msg('Pas de connexion : action non partagée.');return}}
+  const removedItem=items.find(item=>Number(item.id)===id);
+  items=items.filter(i=>i.id!==id);
+  done[id]=kind;
+  kind==='eat'?hist.eaten++:hist.thrown++;
+  const suggested=removedItem?addShoppingCandidate(removedItem.name):false;
+  save();render();
+  if(suggested&&!await persistShopping())msg('Produit proposé dans la liste, mais synchronisation indisponible.');
+});
+function rappel(i){
+  if(!i||!i.date){msg('Ajoute d’abord une date de péremption pour créer un rappel.');return}
+  const ymd=d=>d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+  const start=new Date(i.date+'T00:00'),end=new Date(start);end.setDate(end.getDate()+1);
+  const nom=i.name.replace(/[\\;,]/g,'\\$&');
+  const al=(t,txt)=>['BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+txt,'TRIGGER:'+t,'END:VALARM'];
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mon frigo//FR','BEGIN:VEVENT','UID:frigo-'+i.id+'@monfrigo',
+    'DTSTAMP:'+new Date().toISOString().replace(/[-:]|\.\d+/g,''),'DTSTART;VALUE=DATE:'+ymd(start),'DTEND;VALUE=DATE:'+ymd(end),
+    'SUMMARY:À consommer : '+nom,...al('-P1DT15H','À consommer dans 2 jours : '+nom),...al('PT9H','Dernier jour : '+nom),'END:VEVENT','END:VCALENDAR'];
+  const url=URL.createObjectURL(new Blob([L.join('\r\n')],{type:'text/calendar'}));
+  const a=document.createElement('a');a.href=url;a.download='rappel-frigo.ics';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  msg('Rappel prêt : valide l’ajout dans Calendrier.');
+}
+let rt=null,pullTimer=0;
+async function pull(){
+  if(!sess||!sb||!me)return;
+  const fid=sess;
+  try{
+    const since=new Date(Date.now()-14*864e5);
+    const day=since.getFullYear()+'-'+String(since.getMonth()+1).padStart(2,'0')+'-'+String(since.getDate()).padStart(2,'0');
+    const [it,ea,th,nm,sh,ml,mb,iv]=await Promise.all([
+      sb.from('frigo_items').select('id,code,name,expiry_date,added_by').eq('fridge_id',fid).is('removed_kind',null),
+      sb.from('frigo_items').select('id',{count:'exact',head:true}).eq('fridge_id',fid).eq('removed_kind','eat'),
+      sb.from('frigo_items').select('id',{count:'exact',head:true}).eq('fridge_id',fid).eq('removed_kind','out'),
+      sb.from('frigo_product_names').select('code,name').eq('fridge_id',fid),
+      sb.from('frigo_shopping').select('id,name,price,checked,created_at').eq('fridge_id',fid).order('created_at'),
+      sb.from('frigo_meals').select('name,day').eq('fridge_id',fid).gte('day',day),
+      sb.from('frigo_members').select('user_id,role,frigo_profiles(display_name)').eq('fridge_id',fid),
+      sb.from('frigo_invites').select('id,email,expires_at').eq('fridge_id',fid).is('accepted_at',null).gt('expires_at',new Date().toISOString())
+    ]);
+    const bad=[it,nm,sh,mb].find(r=>r.error);
+    if(bad)throw bad.error;
+    if(fid!==sess)return;   // on a changé de frigo entre-temps
+    if(!(mb.data||[]).some(m=>m.user_id===me.id)){   // exclu ou frigo supprimé
+      sess='';lsS('frigo_sess','');unsubscribe();load();render();renderShoppingList();renderProfile();
+      await loadFridges();frigoUi();frigoSay('Tu n’as plus accès à ce frigo.');return;
+    }
+    invites=iv&&!iv.error?(iv.data||[]):[];
+    members={};(mb.data||[]).forEach(m=>{members[m.user_id]={name:(m.frigo_profiles&&m.frigo_profiles.display_name)||'Membre',role:m.role}});
+    items=(it.data||[]).map(r=>({id:Number(r.id),code:r.code||'',name:r.name,date:r.expiry_date||'',by:r.added_by||''}));
+    hist={eaten:ea.count||0,thrown:th.count||0};
+    names={};(nm.data||[]).forEach(r=>{names[r.code]=r.name});
+    mealHistory=(ml.data||[]).map(r=>({name:r.name,date:r.day}));
+    shoppingList=(sh.data||[]).map(r=>({id:String(r.id),name:String(r.name).slice(0,80),price:r.price==null?'':String(Number(r.price)),checked:r.checked===true}));
+    save();render();
+    const typing=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#shoppingItems');
+    if(!typing)renderShoppingList();
+    renderSuggestions();
+    online=true;frigoUi();
+  }catch(e){online=false}
+}
+function schedulePull(){clearTimeout(pullTimer);pullTimer=setTimeout(pull,250)}
+function unsubscribe(){if(rt&&sb){try{sb.removeChannel(rt)}catch(e){}}rt=null}
+function subscribe(){
+  unsubscribe();
+  if(!sess||!sb)return;
+  const f='fridge_id=eq.'+sess;
+  rt=sb.channel('frigo-'+sess);
+  ['frigo_items','frigo_shopping','frigo_product_names','frigo_meals','frigo_members'].forEach(t=>{
+    rt.on('postgres_changes',{event:'*',schema:'public',table:t,filter:f},schedulePull);
+  });
+  rt.subscribe(st=>{
+    if(st==='SUBSCRIBED'){online=true;pull()}
+    else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED')online=false;
+  });
+}
+function exportJson(){return JSON.stringify({app:'frigo',v:1,items,done,names,shoppingList})}
+async function exporter(){
+  const file=new File([exportJson()],'frigo.json',{type:'application/json'});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Mon frigo'});return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+  const url=URL.createObjectURL(file),a=document.createElement('a');
+  a.href=url;a.download='frigo.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  msg('Fichier frigo.json prêt : envoie-le à ta famille.');
+}
+function fusion(d){
+  if(!d||d.app!=='frigo'||!Array.isArray(d.items)){msg('Ce fichier n’est pas un frigo valide.');return}
+  let add=0,rem=0;const dn=d.done&&typeof d.done==='object'?d.done:{};
+  for(const id in dn){
+    if(done[id]||(dn[id]!=='eat'&&dn[id]!=='out'))continue;
+    done[id]=dn[id];dn[id]==='eat'?hist.eaten++:hist.thrown++;
+    const n=items.length;items=items.filter(i=>String(i.id)!==id);if(items.length<n)rem++;
+  }
+  for(const it of d.items){
+    const importDate=String(it&&it.date||'');
+    const date=importDate;
+    if(!it||!it.id||!it.name||(date&&!/^\d{4}-\d{2}-\d{2}$/.test(date))||done[it.id])continue;
+    if(!items.some(i=>i.id===it.id)){items.push({id:it.id,code:String(it.code||'').slice(0,40),name:String(it.name).slice(0,120),date});add++}
+  }
+  if(Array.isArray(d.shoppingList))for(const entry of d.shoppingList){
+    if(!entry||!entry.name||shoppingList.some(item=>normalize(item.name)===normalize(entry.name)))continue;
+    shoppingList.push({id:String(entry.id||Date.now()+'-'+Math.random().toString(36).slice(2,7)),name:String(entry.name).slice(0,80),price:entry.price===''?'':String(Number(entry.price)||''),checked:entry.checked===true});
+  }
+  if(d.names&&typeof d.names==='object')for(const k in d.names)if(typeof d.names[k]==='string')names[k]=d.names[k].slice(0,120);
+  save();render();renderShoppingList();
+  msg(add+' produit'+(add>1?'s':'')+' ajouté'+(add>1?'s':'')+', '+rem+' retiré'+(rem>1?'s':'')+'.');
+}
+
+
+
+
+
+setInterval(()=>{if(sess&&!document.hidden)pull()},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
+$('#chain').checked=lsG('frigo_chain')!=='0';
+$('#chain').onchange=e=>lsS('frigo_chain',e.target.checked?'':'0');
+load();renderProfile();render();renderShoppingList();
+</script>
+
+<script>
+(function(){
+  var home=document.getElementById('homeTab'),cv=document.getElementById('homeFx'),ctx=cv.getContext('2d');
+  var stage=document.getElementById('hmStage'),tilt=document.getElementById('hmTilt');
+  var W=0,H=0,pts=[],raf=0,ptr={x:-999,y:-999},run=false;
+  function size(){
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    W=home.clientWidth;H=home.clientHeight;
+    cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    var n=Math.max(24,Math.min(70,Math.round(W*H/13000)));
+    pts=[];for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:-.12-Math.random()*.35,r:Math.random()*1.7+.6});
+  }
+  function frame(){
+    if(!run)return;
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i],dx=ptr.x-p.x,dy=ptr.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<130){p.x+=dx/d*.9;p.y+=dy/d*.9}
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.y<-10){p.y=H+10;p.x=Math.random()*W}
+      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fillStyle='rgba(120,255,240,.85)';ctx.shadowColor='#35f2dc';ctx.shadowBlur=8;ctx.fill();
+      ctx.shadowBlur=0;
+      for(var j=i+1;j<pts.length;j++){
+        var q=pts[j],ex=p.x-q.x,ey=p.y-q.y,dd=ex*ex+ey*ey;
+        if(dd<8100){ctx.strokeStyle='rgba(53,242,220,'+(0.22*(1-dd/8100)).toFixed(3)+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke()}
+      }
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  function fx(on){
+    run=on&&!document.hidden;cancelAnimationFrame(raf);
+    if(run){size();raf=requestAnimationFrame(frame)}
+  }
+  window.addEventListener('resize',function(){if(!home.hidden)fx(true)});
+  document.addEventListener('visibilitychange',function(){if(!home.hidden)fx(true)});
+
+  // Parallaxe + onde tactile
+  function move(e){
+    var r=home.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    ptr.x=x;ptr.y=y;
+    stage.style.setProperty('--rx',((x/r.width-.5)*22).toFixed(1)+'deg');
+    stage.style.setProperty('--ry',((y/r.height-.5)*-18).toFixed(1)+'deg');
+  }
+  home.addEventListener('pointermove',move);
+  home.addEventListener('pointerleave',function(){ptr.x=ptr.y=-999;stage.style.setProperty('--rx','0deg');stage.style.setProperty('--ry','0deg')});
+  home.addEventListener('pointerdown',function(e){
+    move(e);
+    var r=home.getBoundingClientRect(),d=document.createElement('div');
+    d.className='hm-rip';d.style.left=(e.clientX-r.left)+'px';d.style.top=(e.clientY-r.top)+'px';
+    home.appendChild(d);d.addEventListener('animationend',function(){d.remove()});
+    if(navigator.vibrate)try{navigator.vibrate(8)}catch(_){}
+  });
+  home.addEventListener('pointerup',function(e){if(e.pointerType==='touch'){ptr.x=ptr.y=-999}});
+
+  // Navigation : l'accueil s'affiche seulement sur son onglet
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.addEventListener('click',function(){
+      var on=b.dataset.tab==='home';
+      document.body.classList.toggle('on-home',on);
+      home.classList.remove('leave');
+      home.hidden=!on;
+      if(on){try{if(typeof stop==='function')stop()}catch(_){}}
+      fx(on);window.scrollTo(0,0);
+    });
+  });
+  document.getElementById('hmEnter').addEventListener('click',function(){
+    home.classList.add('leave');
+    setTimeout(function(){document.querySelector('.tab[data-tab="fridge"]').click()},420);
+  });
+
+  fx(true);
+})();
+</script>
+
+<script>
+// ===== Comptes, frigos partagés (Supabase) =====
+const q=x=>document.getElementById(x);
+function frigoSay(t){const e=q('shMsg');if(e)e.textContent=t}
+// Les messages de l'appli (#msg, onglet frigo) sont recopiés dans Profil
+(function(){const src=q('msg');if(src)new MutationObserver(()=>{if(src.textContent)frigoSay(src.textContent)}).observe(src,{childList:true,characterData:true,subtree:true})})();
+
+function frErr(e){
+  const m=String((e&&e.message)||e||'');
+  if(/Invalid login/i.test(m))return 'Email ou mot de passe incorrect.';
+  if(/not confirmed/i.test(m))return 'Confirme d’abord ton email : clique sur le lien reçu par mail.';
+  if(/already registered|already been registered/i.test(m))return 'Un compte existe déjà avec cet email : connecte-toi.';
+  if(/rate limit|too many|over_email/i.test(m))return 'Trop de tentatives. Réessaie dans quelques minutes.';
+  if(/at least|weak/i.test(m))return 'Mot de passe trop court ou trop faible (8 caractères minimum).';
+  if(/network|fetch|Failed/i.test(m))return 'Pas de connexion internet. Réessaie.';
+  return 'Erreur : '+m;
+}
+let acMode='in',lastUid=null,selSig='',inviteText='';
+function acRenderMode(){
+  q('acNameWrap').hidden=acMode==='in';
+  q('acSubmit').textContent=acMode==='in'?'Se connecter':'Créer mon compte';
+  q('acToggle').textContent=acMode==='in'?'Pas encore de compte ? En créer un':'Déjà un compte ? Se connecter';
+  q('acPass').autocomplete=acMode==='in'?'current-password':'new-password';
+  q('acForgot').hidden=acMode!=='in';
+}
+const curFridge=()=>fridges.find(f=>f.id===sess)||null;
+
+function frigoUi(){
+  const logged=!!me;
+  q('acOut').hidden=logged;q('acIn').hidden=!logged;
+  q('acNoLib').hidden=!!sb;q('acForm').hidden=!sb;
+  q('acFile').hidden=!!sess;   // le fichier JSON ne sert qu'au frigo local
+  const bn=q('acInviteBanner');bn.textContent=inviteText;bn.hidden=!(inviteText&&!logged);
+  const badge=q('fridgeBadge'),f=curFridge();
+  if(logged&&sess&&f){
+    const n=Object.keys(members).length;
+    badge.textContent='🔗 Frigo partagé « '+f.name+' »'+(n>1?' · '+n+' membres':'');badge.hidden=false;
+  }else badge.hidden=true;
+  if(!logged)return;
+  q('acWho').textContent='Connecté : '+(meName||me.email||'');
+  const sig=JSON.stringify(fridges.map(x=>[x.id,x.name]))+'|'+sess;
+  if(sig!==selSig){
+    selSig=sig;
+    const sel=q('acFridgeSel');
+    sel.innerHTML='<option value="">Frigo personnel (cet appareil)</option>'+fridges.map(x=>'<option value="'+x.id+'">'+esc(x.name)+(x.role==='owner'?' (propriétaire)':'')+'</option>').join('');
+    sel.value=sess;
+  }
+  q('acFridgeBox').hidden=!(sess&&f);
+  q('acCopyHint').hidden=fridges.length>0;
+  if(sess&&f){
+    q('shCode').textContent=f.invite_code||'';
+    const isOwner=f.role==='owner';
+    q('acOwnerTools').hidden=!isOwner;
+    q('acMembers').innerHTML=Object.entries(members).map(([id,m])=>{
+      const you=id===me.id;
+      return '<div class="ac-member"><span>'+esc(m.name)+(you?' <small>(toi)</small>':'')+(m.role==='owner'?' <small>propriétaire</small>':'')+'</span>'+(isOwner&&!you?'<button type="button" data-kick="'+id+'">Retirer</button>':'')+'</div>';
+    }).join('');
+    q('acInvites').innerHTML=invites.map(v=>'<div class="ac-member"><span>'+esc(v.email)+' <small>en attente</small></span><button type="button" data-cancel="'+v.id+'">Annuler</button></div>').join('');
+    q('acLeave').textContent=isOwner?'Supprimer ce frigo':'Quitter ce frigo';
+  }
+  stateUi();
+}
+function stateUi(){
+  const st=q('shState');if(!st)return;
+  st.classList.toggle('off',!online);
+  st.lastChild.textContent=!me?'':(sess?(online?'Connecté · en direct':'Hors connexion'):'Connecté');
+}
+setInterval(stateUi,3000);
+
+async function loadFridges(){
+  if(!sb||!me){fridges=[];return}
+  try{
+    const {data,error}=await sb.from('frigo_members').select('role,frigo_fridges(id,name,invite_code,owner_id)').eq('user_id',me.id);
+    if(error)throw error;
+    fridges=(data||[]).filter(m=>m.frigo_fridges).map(m=>({...m.frigo_fridges,role:m.role})).sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+    lsS('frigo_fridges_cache',JSON.stringify(fridges));
+  }catch(e){
+    try{fridges=JSON.parse(lsG('frigo_fridges_cache')||'[]')}catch(_){fridges=[]}
+  }
+}
+async function loadProfileCloud(){
+  try{
+    const {data}=await sb.from('frigo_profiles').select('display_name,appliances,other_appliance').eq('id',me.id).maybeSingle();
+    if(!data)return;
+    meName=data.display_name||'';
+    const ok=['hob','oven','microwave','blender','airFryer','riceCooker','multiCooker','other'];
+    if((data.appliances&&data.appliances.length)||data.other_appliance){
+      profile={appliances:data.appliances.filter(v=>ok.includes(v)),otherAppliance:String(data.other_appliance||'').slice(0,60)};
+      save();renderProfile();renderSuggestions();
+    }else if(profile.appliances.length||profile.otherAppliance)cloudSaveProfile();
+  }catch(e){}
+}
+function cloudSaveProfile(){
+  if(!sb||!me)return;
+  sb.from('frigo_profiles').update({appliances:profile.appliances,other_appliance:profile.otherAppliance}).eq('id',me.id).then(()=>{},()=>{});
+}
+let profTimer=0;
+function cloudSaveProfileSoon(){clearTimeout(profTimer);profTimer=setTimeout(cloudSaveProfile,700)}
+
+async function setFridge(id){
+  id=id||'';
+  if(id===sess&&(id===''||rt))return;
+  unsubscribe();
+  sess=id;lsS('frigo_sess',sess);members={};
+  load();render();renderShoppingList();renderProfile();
+  if(sess){await pull();subscribe()}
+  selSig='';frigoUi();
+}
+async function onSession(session){
+  me=session?session.user:null;
+  if(!me){
+    lastUid=null;unsubscribe();fridges=[];members={};meName='';
+    if(sess){sess='';lsS('frigo_sess','')}
+    load();render();renderShoppingList();renderProfile();selSig='';frigoUi();showInvite();return;
+  }
+  if(lastUid===me.id)return;
+  lastUid=me.id;
+  meName=(me.user_metadata&&me.user_metadata.display_name)||'';
+  frigoUi();
+  await Promise.all([loadProfileCloud(),loadFridges()]);
+  const tok=lsG('frigo_invite');
+  if(tok&&sb){
+    const {data:fid,error}=await sb.rpc('frigo_accept_invite',{p_token:tok});
+    if(!error&&fid){lsS('frigo_invite','');inviteText='';await loadFridges();sess=fid;lsS('frigo_sess',sess);frigoSay('Invitation acceptée : tu as rejoint le frigo.')}
+    else if(error&&/invite_invalid/.test(error.message)){lsS('frigo_invite','');inviteText='';frigoSay('Cette invitation n’est plus valable. Demande-en une nouvelle à la personne qui t’a invité.')}
+  }
+  if(sess&&!fridges.some(f=>f.id===sess)&&navigator.onLine!==false){sess='';lsS('frigo_sess','')}
+  load();render();renderShoppingList();renderProfile();
+  if(sess){await pull();subscribe()}
+  selSig='';frigoUi();
+}
+
+q('acToggle').onclick=()=>{acMode=acMode==='in'?'up':'in';acRenderMode();frigoSay('')};
+q('acSubmit').onclick=async()=>{
+  if(!sb){frigoSay('Comptes indisponibles : vérifie ta connexion internet.');return}
+  const email=q('acEmail').value.trim(),pass=q('acPass').value;
+  if(!/^\S+@\S+\.\S+$/.test(email)){frigoSay('Entre une adresse email valide.');return}
+  if(pass.length<8){frigoSay('Mot de passe : 8 caractères minimum.');return}
+  frigoSay(acMode==='in'?'Connexion…':'Création du compte…');
+  if(acMode==='up'){
+    const name=q('acName').value.trim().slice(0,40)||email.split('@')[0];
+    const back=location.protocol.startsWith('http')?location.origin+location.pathname:undefined;
+    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{display_name:name},emailRedirectTo:back}});
+    if(error){frigoSay(frErr(error));return}
+    if(!data.session){frigoSay('Compte créé. Clique sur le lien reçu par email pour le confirmer, puis connecte-toi ici.');acMode='in';acRenderMode();return}
+  }else{
+    const {error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error){frigoSay(frErr(error));return}
+  }
+  q('acPass').value='';frigoSay('Connecté.');
+};
+q('acForgot').onclick=async()=>{
+  const email=q('acEmail').value.trim();
+  if(!/^\S+@\S+\.\S+$/.test(email)){frigoSay('Entre ton email ci-dessus, puis reclique sur « Mot de passe oublié ».');return}
+  const back=location.protocol.startsWith('http')?location.origin+location.pathname:undefined;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:back});
+  frigoSay(error?frErr(error):'Email envoyé : suis le lien pour choisir un nouveau mot de passe.');
+};
+q('acLogout').onclick=async()=>{
+  if(!confirm('Te déconnecter ? Tes frigos partagés restent dans ton compte.'))return;
+  await sb.auth.signOut();frigoSay('Déconnecté.');
+};
+q('acFridgeSel').onchange=e=>setFridge(e.target.value);
+
+async function uploadLocalFridge(fid){
+  let d={};try{d=JSON.parse(lsG('frigo')||'{}')}catch(e){}
+  const its=(d.items||[]).filter(i=>i&&i.id&&i.name);
+  if(its.length){const {error}=await sb.from('frigo_items').upsert(its.map(i=>itemRow(fid,i)),{onConflict:'fridge_id,id',ignoreDuplicates:true});if(error)throw error}
+  const nm=Object.entries(d.names||{}).filter(([k,v])=>nk(k)&&typeof v==='string').map(([k,v])=>({fridge_id:fid,code:nk(k),name:v.slice(0,120)}));
+  if(nm.length){const {error}=await sb.from('frigo_product_names').upsert(nm,{onConflict:'fridge_id,code'});if(error)throw error}
+  const sh=(d.shoppingList||[]).filter(e=>e&&e.name&&e.id).map(e=>shopRow(fid,e));
+  if(sh.length){const {error}=await sb.from('frigo_shopping').upsert(sh,{onConflict:'fridge_id,id'});if(error)throw error}
+}
+q('acCreate').onclick=async()=>{
+  if(!sb||!me)return;
+  const name=q('acFridgeName').value.trim().slice(0,40)||'Mon frigo';
+  frigoSay('Création…');
+  const first=!fridges.length;
+  const {data:fid,error}=await sb.rpc('frigo_create',{p_name:name});
+  if(error){frigoSay(frErr(error));return}
+  if(first){try{await uploadLocalFridge(fid)}catch(e){frigoSay('Frigo créé, mais la copie de ton frigo local a échoué.')}}
+  await loadFridges();await setFridge(fid);
+  q('acFridgeName').value='';q('acNew').open=false;
+  frigoSay('Frigo « '+name+' » créé. Donne le code d’invitation à tes proches.');
+};
+q('shJoin').onclick=async()=>{
+  if(!sb||!me)return;
+  const c=q('f-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length<8){frigoSay('Le code contient 8 caractères.');return}
+  frigoSay('Connexion…');
+  const {data:fid,error}=await sb.rpc('frigo_join',{p_code:c});
+  if(error){frigoSay(/code_not_found/.test(error.message)?'Code introuvable. Vérifie-le avec la personne qui l’a créé.':frErr(error));return}
+  await loadFridges();await setFridge(fid);
+  q('f-code').value='';q('acNew').open=false;frigoSay('Frigo rejoint.');
+};
+q('shCopy').onclick=()=>{
+  const f=curFridge();if(!f)return;
+  (navigator.clipboard?navigator.clipboard.writeText(f.invite_code):Promise.reject()).then(()=>frigoSay('Code copié.')).catch(()=>frigoSay('Ton code : '+f.invite_code));
+};
+q('shShareCode').onclick=()=>{
+  const f=curFridge();if(!f)return;
+  const t='Rejoins mon frigo partagé « '+f.name+' » : ouvre l’appli Mon frigo > Profil, crée ton compte, puis entre le code '+f.invite_code+' dans « Rejoindre ».';
+  if(navigator.share)navigator.share({title:'Mon frigo',text:t}).catch(()=>{});
+  else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>frigoSay('Message copié.'));
+};
+q('acRename').onclick=async()=>{
+  const f=curFridge();if(!f)return;
+  const n=(prompt('Nouveau nom du frigo',f.name)||'').trim().slice(0,40);
+  if(!n||n===f.name)return;
+  const {error}=await sb.from('frigo_fridges').update({name:n}).eq('id',f.id);
+  if(error){frigoSay(frErr(error));return}
+  await loadFridges();frigoUi();frigoSay('Frigo renommé.');
+};
+q('acNewCode').onclick=async()=>{
+  const f=curFridge();if(!f)return;
+  if(!confirm('Générer un nouveau code ? L’ancien ne fonctionnera plus pour rejoindre le frigo (les membres actuels restent).'))return;
+  const {error}=await sb.rpc('frigo_new_code',{fid:f.id});
+  if(error){frigoSay(frErr(error));return}
+  await loadFridges();frigoUi();frigoSay('Nouveau code créé.');
+};
+q('acMembers').onclick=async e=>{
+  const b=e.target.closest('button[data-kick]');if(!b)return;
+  const f=curFridge();if(!f)return;
+  const m=members[b.dataset.kick];
+  if(!confirm('Retirer '+(m?m.name:'ce membre')+' du frigo ?'))return;
+  const {error}=await sb.from('frigo_members').delete().eq('fridge_id',f.id).eq('user_id',b.dataset.kick);
+  if(error){frigoSay(frErr(error));return}
+  await pull();frigoSay('Membre retiré.');
+};
+q('acLeave').onclick=async()=>{
+  const f=curFridge();if(!f)return;
+  if(f.role==='owner'){
+    if(Object.keys(members).length>1){frigoSay('Tu es propriétaire : retire d’abord les autres membres, ou supprime le frigo une fois seul.');return}
+    if(!confirm('Supprimer définitivement « '+f.name+' » et tout son contenu ?'))return;
+    const {error}=await sb.from('frigo_fridges').delete().eq('id',f.id);
+    if(error){frigoSay(frErr(error));return}
+  }else{
+    if(!confirm('Quitter « '+f.name+' » ? Tu retrouveras ton frigo personnel sur cet appareil.'))return;
+    const {error}=await sb.from('frigo_members').delete().eq('fridge_id',f.id).eq('user_id',me.id);
+    if(error){frigoSay(frErr(error));return}
+  }
+  await loadFridges();await setFridge('');frigoSay('Frigo quitté.');
+};
+
+q('acInvite').onclick=async()=>{
+  const f=curFridge();if(!f||!sb||!me)return;
+  const email=q('acInvEmail').value.trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email)){frigoSay('Entre une adresse email valide.');return}
+  if(!location.protocol.startsWith('http')){frigoSay('Le lien ne marchera qu’une fois l’appli en ligne (Netlify). Mets-la en ligne puis réessaie.');return}
+  const {data,error}=await sb.from('frigo_invites').insert({fridge_id:f.id,email}).select('token').single();
+  if(error){frigoSay(frErr(error));return}
+  const link=location.origin+location.pathname+'?invite='+data.token;
+  const sujet=(meName||'Un proche')+' t’invite à rejoindre le frigo « '+f.name+' »';
+  const corps='Salut !\n\nJe t’invite à partager mon frigo « '+f.name+' » dans l’appli Mon frigo. Ouvre ce lien, crée ton compte (ou connecte-toi) et tu y auras accès :\n\n'+link+'\n\nLe lien est valable 7 jours et ne marche qu’une fois.';
+  q('acInvEmail').value='';
+  try{if(navigator.clipboard)navigator.clipboard.writeText(link).catch(()=>{})}catch(e){}
+  await pull();
+  frigoSay('Invitation prête pour '+email+'. Si ton appli de mail ne s’ouvre pas, le lien est copié : colle-le dans un message.');
+  location.href='mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps);
+};
+q('acInvites').onclick=async e=>{
+  const b=e.target.closest('button[data-cancel]');if(!b)return;
+  const {error}=await sb.from('frigo_invites').delete().eq('id',b.dataset.cancel);
+  if(error){frigoSay(frErr(error));return}
+  await pull();frigoSay('Invitation annulée.');
+};
+// Lien d'invitation reçu : on garde le jeton le temps de créer le compte / se connecter
+try{
+  const u=new URL(location.href),t=u.searchParams.get('invite');
+  if(t&&/^[A-Za-z0-9]{20,64}$/.test(t)){lsS('frigo_invite',t);u.searchParams.delete('invite');history.replaceState(null,'',u.pathname+u.search+u.hash)}
+}catch(e){}
+async function showInvite(){
+  const t=lsG('frigo_invite');if(!t||!sb)return;
+  try{
+    const {data,error}=await sb.rpc('frigo_invite_info',{p_token:t});
+    if(error)throw error;
+    const r=data&&data[0];
+    if(!r){lsS('frigo_invite','');inviteText='';frigoUi();frigoSay('Cette invitation n’est plus valable. Demande-en une nouvelle à la personne qui t’a invité.');return}
+    inviteText=(r.inviter_name||'Un proche')+' t’invite à rejoindre le frigo « '+r.fridge_name+' ». Crée ton compte ou connecte-toi pour y accéder.';
+  }catch(e){inviteText='Tu as une invitation à rejoindre un frigo partagé. Crée ton compte ou connecte-toi pour y accéder.'}
+  acMode='up';acRenderMode();frigoUi();
+  const tab=document.querySelector('.tab[data-tab="profile"]');if(tab)tab.click();
+}
+
+// Envoi / réception de fichier (frigo local)
+q('shSend').onclick=()=>exporter();
+q('shImport').onclick=()=>q('shFile').click();
+q('shFile').onchange=e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  f.text().then(t=>{let d;try{d=JSON.parse(t)}catch(_){frigoSay('Ce fichier n’est pas un frigo valide.');return}fusion(d)}).catch(()=>frigoSay('Lecture du fichier impossible.'));
+};
+
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sess&&sb&&me&&!rt)subscribe()});
+window.addEventListener('online',()=>{if(sess&&me){pull();subscribe()}});
+
+// Démarrage
+acRenderMode();frigoUi();
+if(sb){
+  sb.auth.onAuthStateChange((ev,session)=>{
+    if(ev==='TOKEN_REFRESHED')return;
+    if(ev==='PASSWORD_RECOVERY'){setTimeout(async()=>{const p=prompt('Choisis ton nouveau mot de passe (8 caractères minimum)');if(p&&p.length>=8){const {error}=await sb.auth.updateUser({password:p});frigoSay(error?frErr(error):'Mot de passe mis à jour.')}},300)}
+    setTimeout(()=>onSession(session),0);
+  });
+}
+</script>
+</body>
+</html>
