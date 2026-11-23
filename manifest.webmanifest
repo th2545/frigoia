@@ -1,0 +1,13 @@
+{
+  "name": "Mon frigo",
+  "short_name": "Mon frigo",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#02090d",
+  "theme_color": "#02090d",
+  "icons": [
+    { "src": "icon.png", "sizes": "any", "type": "image/png", "purpose": "any" }
+  ]
+}
