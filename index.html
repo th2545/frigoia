@@ -420,6 +420,7 @@ details.sh-live[open] summary::after{transform:rotate(45deg)}
   <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p>
   <div id="shareBlock" class="sh-block">
     <h2>Compte et frigo partagé</h2>
+    <p class="ac-invite" id="acStorageWarn" hidden>Ici, ton navigateur ne garde pas ta connexion (appli ouverte depuis un fichier, ou navigation privée). Ouvre l’appli depuis son adresse web pour rester connecté.</p>
 
     <div id="acOut">
       <p class="ac-invite" id="acInviteBanner" hidden></p>
@@ -1543,7 +1544,9 @@ function frErr(e){
   if(/network|fetch|Failed/i.test(m))return 'Pas de connexion internet. Réessaie.';
   return 'Erreur : '+m;
 }
-let acMode='in',lastUid=null,selSig='',inviteText='';
+let acMode='in',lastUid=null,selSig='',inviteText='',lastFridge=null;
+let storageOk=true;try{localStorage.setItem('__t','1');localStorage.removeItem('__t')}catch(e){storageOk=false}
+if(location.protocol==='file:')storageOk=false;
 function acRenderMode(){
   q('acNameWrap').hidden=acMode==='in';
   q('acSubmit').textContent=acMode==='in'?'Se connecter':'Créer mon compte';
@@ -1558,6 +1561,7 @@ function frigoUi(){
   q('acOut').hidden=logged;q('acIn').hidden=!logged;
   q('acNoLib').hidden=!!sb;q('acForm').hidden=!sb;
   q('acFile').hidden=!!sess;   // le fichier JSON ne sert qu'au frigo local
+  q('acStorageWarn').hidden=storageOk;
   const bn=q('acInviteBanner');bn.textContent=inviteText;bn.hidden=!(inviteText&&!logged);
   const badge=q('fridgeBadge'),f=curFridge();
   if(logged&&sess&&f){
@@ -1608,9 +1612,9 @@ async function loadFridges(){
 }
 async function loadProfileCloud(){
   try{
-    const {data}=await sb.from('frigo_profiles').select('display_name,appliances,other_appliance').eq('id',me.id).maybeSingle();
+    const {data}=await sb.from('frigo_profiles').select('display_name,appliances,other_appliance,last_fridge').eq('id',me.id).maybeSingle();
     if(!data)return;
-    meName=data.display_name||'';
+    meName=data.display_name||'';lastFridge=data.last_fridge||null;
     const ok=['hob','oven','microwave','blender','airFryer','riceCooker','multiCooker','other'];
     if((data.appliances&&data.appliances.length)||data.other_appliance){
       profile={appliances:data.appliances.filter(v=>ok.includes(v)),otherAppliance:String(data.other_appliance||'').slice(0,60)};
@@ -1625,9 +1629,12 @@ function cloudSaveProfile(){
 let profTimer=0;
 function cloudSaveProfileSoon(){clearTimeout(profTimer);profTimer=setTimeout(cloudSaveProfile,700)}
 
-async function setFridge(id){
+async function setFridge(id,explicit){
   id=id||'';
   if(id===sess&&(id===''||rt))return;
+  if(explicit&&id==='')lsS('frigo_pref','personal');else if(id)lsS('frigo_pref','');
+  lastFridge=id||null;
+  if(sb&&me)sb.from('frigo_profiles').update({last_fridge:lastFridge}).eq('id',me.id).then(()=>{},()=>{});
   unsubscribe();
   sess=id;lsS('frigo_sess',sess);members={};
   load();render();renderShoppingList();renderProfile();
@@ -1637,7 +1644,7 @@ async function setFridge(id){
 async function onSession(session){
   me=session?session.user:null;
   if(!me){
-    lastUid=null;unsubscribe();fridges=[];members={};meName='';
+    lastUid=null;unsubscribe();fridges=[];members={};meName='';lastFridge=null;lsS('frigo_pref','');
     if(sess){sess='';lsS('frigo_sess','')}
     load();render();renderShoppingList();renderProfile();selSig='';frigoUi();showInvite();return;
   }
@@ -1653,6 +1660,10 @@ async function onSession(session){
     else if(error&&/invite_invalid/.test(error.message)){lsS('frigo_invite','');inviteText='';frigoSay('Cette invitation n’est plus valable. Demande-en une nouvelle à la personne qui t’a invité.')}
   }
   if(sess&&!fridges.some(f=>f.id===sess)&&navigator.onLine!==false){sess='';lsS('frigo_sess','')}
+  if(!sess&&fridges.length&&lsG('frigo_pref')!=='personal'){
+    const pick=fridges.find(f=>f.id===lastFridge)||fridges[0];
+    sess=pick.id;lsS('frigo_sess',sess);
+  }
   load();render();renderShoppingList();renderProfile();
   if(sess){await pull();subscribe()}
   selSig='';frigoUi();
@@ -1688,7 +1699,7 @@ q('acLogout').onclick=async()=>{
   if(!confirm('Te déconnecter ? Tes frigos partagés restent dans ton compte.'))return;
   await sb.auth.signOut();frigoSay('Déconnecté.');
 };
-q('acFridgeSel').onchange=e=>setFridge(e.target.value);
+q('acFridgeSel').onchange=e=>setFridge(e.target.value,true);
 
 async function uploadLocalFridge(fid){
   let d={};try{d=JSON.parse(lsG('frigo')||'{}')}catch(e){}
